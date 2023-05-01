@@ -298,8 +298,11 @@ class train_multi_center_dual:
                 for ind in list(cat_items.keys()):
                     clf_weight[ind] = 1.0 / max(cat_size, 1.0)
                 continue
+
+            
             ind = torch.LongTensor(list(cat_items.keys()))
-            clf = CoarseLeadingForest(list(cat_items.values()))
+            metric = "cosine" if self.algorithm_opt["cos_loss"] else "euclidean"
+            clf = CoarseLeadingForest(samples=list(cat_items.values()), metric=metric)
             self.cat_ind[cat] = ind
             self.cat_clf[cat] = clf
             weights = torch.ones(len(ind))

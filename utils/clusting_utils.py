@@ -40,7 +40,7 @@ class CoarseLeadingForest:
     def __init__(
         self,
         samples: list[list[int]],
-        metric="cosine",
+        metric="euclidean",
         min_dist=0.1,
         max_dist=1,
         is_multiple=True,
