@@ -445,8 +445,69 @@ class RIDELoss(nn.Module):
         return loss
 
 
+class MultiCenterLoss(nn.Module):
+    def __init__(
+        self,
+        num_classes=10,
+        feat_dim=2,
+        use_gpu=True,
+        max_num_centers=1,
+        default_centers=None,
+    ):
+        super(MultiCenterLoss, self).__init__()
+        self.num_classes = num_classes
+        self.num_feature = feat_dim
+        self.use_gpu = use_gpu
+
+        self.update_center(max_num_centers, default_centers)
+
+    def forward(self, x, labels, label_center=None):
+        if label_center is None:
+            assert self.max_num_centers == 1
+            label_center = torch.zeros(
+                x.shape[0], dtype=torch.long, device=labels.device
+            )
+
+        assert x.shape[0] == labels.shape[0]
+        assert labels.shape[0] == label_center.shape[0]
+        coords = (labels, label_center)
+        centers = self.centers[coords]
+        dist = (x - centers).pow(2).sum(dim=-1)
+        return torch.clamp(dist, min=1e-12, max=1e12).mean(dim=-1)
+
+    def update_center(self, max_num_centers, default_centers=None):
+        self.max_num_centers = max_num_centers
+        centers = torch.randn(self.num_classes, self.max_num_centers, self.num_feature)
+        if default_centers is not None:
+            assert self.num_classes == len(default_centers)
+            for i in range(self.num_classes):
+                for j, default_center in enumerate(default_centers[i]):
+                    centers[i][j] = torch.Tensor(default_center)
+
+        if self.use_gpu:
+            self.centers = nn.Parameter(centers.cuda())
+        else:
+            self.centers = nn.Parameter(centers)
 
 
+class MultiCenterCosLoss(MultiCenterLoss):
+    def l2_norm(self, x):
+        normed_x = x / torch.norm(x, 2, 1, keepdim=True)
+        return normed_x
 
+    def forward(self, x, labels, label_center=None):
+        if label_center is None:
+            assert self.max_num_centers == 1
+            label_center = torch.zeros(
+                x.shape[0], dtype=torch.long, device=labels.device
+            )
 
-
+        assert x.shape[0] == labels.shape[0]
+        assert labels.shape[0] == label_center.shape[0]
+        coords = (labels, label_center)
+        centers = self.centers[coords]
+        norm_c = self.l2_norm(centers)
+        norm_x = self.l2_norm(x)
+        similarity = (norm_c * norm_x).sum(dim=-1)
+        dist = 1.0 - similarity
+        return torch.clamp(dist, min=1e-12, max=1e12).mean(dim=-1)

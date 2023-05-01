@@ -379,7 +379,7 @@ def save_output(trainset, valset, testset_lt, testset_bl, testset_bbl, idx2label
 # Main
 def main(args):
     # load model
-    model = torchvision.models.resnet50(pretrained=True).cuda()
+    model = torchvision.models.resnet50(weights=torchvision.models.ResNet50_Weights.DEFAULT).cuda()
     # Remove last FC layer, because we want features rather than logits
     model.fc = nn.ReLU()
     # generate pretext attribute labels by clustering

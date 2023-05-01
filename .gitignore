@@ -1,0 +1,12 @@
+zzz*
+*.pyc
+*.jbl
+*.log
+test.py
+outputs*
+checkpoints*
+__pycache__
+coco_glt
+
+
+!cocottributes_py3.jbl

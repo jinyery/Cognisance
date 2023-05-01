@@ -11,7 +11,6 @@ from torch.utils.data.sampler import Sampler
 
 
 from .DT_COCO_LT import COCO_LT
-from .DT_ColorMNIST import ColorMNIST_LT
 from .DT_ImageNet_LT import ImageNet_LT
 
 from .Sampler_ClassAware import ClassAwareSampler
@@ -31,14 +30,6 @@ def get_loader(config, phase, testset, logger):
                              rand_aug = config['dataset']['rand_aug'],
                              output_path=config['output_dir'], 
                              logger=logger)
-    elif config['dataset']['name'] in ('ColorMNIST-LT', 'ColorMNIST-BL'):
-        split = ColorMNIST_LT(phase=phase,
-                              testset=testset,
-                              data_path=config['dataset']['data_path'],
-                              cat_ratio=config['dataset']['cat_ratio'], 
-                              att_ratio=config['dataset']['att_ratio'],
-                              rand_aug = config['dataset']['rand_aug'],
-                              logger=logger)
     elif config['dataset']['name'] in ('ImageNet-LT', 'ImageNet-BL'):
         split = ImageNet_LT(phase=phase,
                              anno_path=config['dataset']['anno_path'],

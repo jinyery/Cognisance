@@ -9,6 +9,7 @@ import argparse
 import torch
 import torch.nn as nn
 import random
+import numpy as np
 import utils.general_utils as utils
 from utils.logger_utils import custom_logger
 from data.dataloader import get_loader
@@ -46,7 +47,7 @@ args = parser.parse_args()
 if args.output_dir is None:
     print('Please specify output directory')
 if not os.path.exists(args.output_dir):
-    os.mkdir(args.output_dir)
+    os.makedirs(args.output_dir)
 if args.phase != 'train':
     logger = custom_logger(args.output_dir, name='{}.txt'.format(args.logger_name))
 else:
@@ -58,6 +59,7 @@ logger.info('========================= Start Main =========================')
 # fix random seed
 logger.info('=====> Using fixed random seed: ' + str(args.seed))
 random.seed(args.seed)
+np.random.random(args.seed)
 torch.manual_seed(args.seed)
 torch.cuda.manual_seed(args.seed)
 torch.cuda.manual_seed_all(args.seed)
@@ -66,12 +68,12 @@ torch.cuda.manual_seed_all(args.seed)
 # load config
 logger.info('=====> Load config from yaml: ' + str(args.cfg))
 with open(args.cfg) as f:
-    config = yaml.load(f)
+    config = yaml.load(f, Loader=yaml.FullLoader)
 
 # load detailed settings for each algorithms
 logger.info('=====> Load algorithm details from yaml: config/algorithms_config.yaml')
 with open('config/algorithms_config.yaml') as f:
-    algo_config = yaml.load(f)
+    algo_config = yaml.load(f, Loader=yaml.FullLoader)
 
 # update config
 logger.info('=====> Merge arguments from command')

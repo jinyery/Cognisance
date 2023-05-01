@@ -27,9 +27,16 @@ from train_center_ride import train_center_ride
 from train_center_ride_mixup import train_center_ride_mixup
 from train_center_ldam_dual import train_center_ldam_dual
 from train_center_dual_mixup import train_center_dual_mixup
+from train_multi_center_dual import train_multi_center_dual
 
 
 def train_loader(config):
+    if (
+        config["training_opt"]["type"] == "multi_center_dual"
+        or config["training_opt"]["type"] == "multi_center_dual_false"
+    ):
+        return train_multi_center_dual
+    
     if config['training_opt']['type'] in ('baseline', 'Focal'):
         return train_baseline
     elif config['training_opt']['type'] in ('LFF', 'LFFLA'):

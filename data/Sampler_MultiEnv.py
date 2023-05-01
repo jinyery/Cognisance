@@ -43,9 +43,11 @@ class DistributionSampler(Sampler):
 
 
     def __iter__(self):
-        self.prob = self.weight / self.weight.sum()
-
-        indices = torch.multinomial(self.prob, self.num_samples, replacement=True).tolist()
+        if torch.unique(self.weight).numel() == 1:
+            indices = torch.randperm(len(self.weight)).tolist()
+        else:
+            self.prob = self.weight / self.weight.sum()
+            indices = torch.multinomial(self.prob, self.num_samples, replacement=True).tolist()
         assert len(indices) == self.num_samples
         return iter(indices)
 

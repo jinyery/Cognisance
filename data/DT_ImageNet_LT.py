@@ -62,7 +62,8 @@ class ImageNet_LT(data.Dataset):
         label = self.labels[index]
         rarity = self.frequencies[index]
 
-        with open(path, 'rb') as f:
+        path = os.path.basename(path)
+        with open(os.path.join(self.data_path, path), 'rb') as f:
             sample = Image.open(f).convert('RGB')
         
         if self.transform is not None:
