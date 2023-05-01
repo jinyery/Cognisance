@@ -3,7 +3,7 @@ output_dir: null
 dataset:
   name: 'MSCOCO-BL'
   data_path: ./data/coco_cbl/images
-  anno_path: ./data/coco_cbl/annotations/annotation.json
+  anno_path: ./data/coco_cbl/annotation.json
   # lt      :  test distribution is long-tailed in both cateogies and atttributes
   # bl      :  the category is balanced
   # bbl     :  both category and attribute are balanced
