@@ -356,7 +356,7 @@ class train_multi_center_dual:
                 feat = self.all_feat[index].tolist()
                 default_centers.append(feat)
             label_center_list.append(default_centers)
-        self.logger.info("=========> max_num_centers:", max_num_centers)
+        self.logger.info("=====> max_num_centers:" + str(max_num_centers))
         self.loss_center.update_center(max_num_centers, label_center_list)
         self.center_optimizer = torch.optim.SGD(self.loss_center.parameters(), lr=0.5)
 

@@ -486,7 +486,7 @@ multi_center_dual:
   loss_type: CrossEntropy # BalancedSoftmax
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : intra, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
+  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
                   center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, real_multi: True, cos_loss: False} 
   # env_type : correctness / inter / intra / inter_intra / simple_aug
 
@@ -500,7 +500,7 @@ multi_center_dual_false:
   loss_type: CrossEntropy # BalancedSoftmax
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : intra, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
+  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
                   center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, real_multi: False, cos_loss: False} 
   # env_type : correctness / inter / intra / inter_intra / simple_aug
 
@@ -514,7 +514,7 @@ multi_center_dual_cos:
   loss_type: CrossEntropy # BalancedSoftmax
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : intra, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
+  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
                   center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, real_multi: True, cos_loss: True} 
   # env_type : correctness / inter / intra / inter_intra / simple_aug
 
@@ -528,6 +528,6 @@ multi_center_dual_false_cos:
   loss_type: CrossEntropy # BalancedSoftmax
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : intra, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
+  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
                   center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, real_multi: False, cos_loss: True} 
   # env_type : correctness / inter / intra / inter_intra / simple_aug
