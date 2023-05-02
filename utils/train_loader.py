@@ -61,7 +61,7 @@ def train_loader(config):
         return train_stage2
     elif config['training_opt']['type'] in ('ride_stage2'):
         return train_stage2_ride
-    elif config['training_opt']['type'] in ('center_dual', 'env_dual'):
+    elif config['training_opt']['type'] in ('center_dual', 'env_dual', 'center_dual_cos'):
         return train_center_dual
     elif config['training_opt']['type'] in ('center_single'):
         return train_center_single

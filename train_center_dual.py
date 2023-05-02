@@ -54,6 +54,8 @@ class train_center_dual():
         self.loss_fc     = create_loss(logger, config, self.train_loader)
         if self.algorithm_opt['triplet_loss']:
             self.loss_center = CenterTripletLoss(num_classes=classifier_args['num_classes'], feat_dim=classifier_args['feat_dim'])
+        elif self.algorithm_opt['cos_loss']:
+            self.loss_center = CenterCosLoss(num_classes=classifier_args['num_classes'], feat_dim=classifier_args['feat_dim'])
         else:
             self.loss_center = CenterLoss(num_classes=classifier_args['num_classes'], feat_dim=classifier_args['feat_dim'])
         self.center_optimizer = torch.optim.SGD(self.loss_center.parameters(), lr=0.5)
