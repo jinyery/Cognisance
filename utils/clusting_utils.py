@@ -41,17 +41,17 @@ class CoarseLeadingForest:
         self,
         samples: list[list[int]],
         metric="euclidean",
-        min_dist=0.1,
-        max_dist=1,
-        is_multiple=True,
+        min_dist=0.05,
+        max_dist=0.05,
+        is_proportion=True,
         max_sample_size=10000,
     ) -> None:
         self.metric = metric
         self.min_dist = min_dist
         self.max_dist = max_dist
-        self.is_multiple = is_multiple
+        self.is_proportion = is_proportion
         self.max_sample_size = max_sample_size
-        if not is_multiple:
+        if not is_proportion:
             self.min_dist_val = self.min_dist
             self.max_dist_val = self.max_dist
         self.root_ids: list[int] = list()
@@ -99,10 +99,11 @@ class CoarseLeadingForest:
                 if end > len(samples):
                     end = len(samples)
                 dist[i:end] = pair_dist(samples[i:end], samples, metric=self.metric)
-        mean = np.mean(dist)
-        if self.is_multiple:
-            self.min_dist_val = mean * self.min_dist
-            self.max_dist_val = mean * self.max_dist
+        if self.is_proportion:
+            dist_size = len(samples) ** 2
+            tmp_dist = np.sort(dist.reshape(-1))
+            self.min_dist_val = tmp_dist[int(self.min_dist * dist_size)]
+            self.max_dist_val = tmp_dist[int((1 - self.max_dist) * dist_size)]
         return dist
 
     def _compute_density(self, dist: np.array) -> np.array:

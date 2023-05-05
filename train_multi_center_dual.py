@@ -291,15 +291,14 @@ class train_multi_center_dual:
         processing_bar = tqdm(cat_feat.items())
         for cat, cat_items in processing_bar:
             cat_size = len(cat_items)
-            processing_bar.set_description(
-                f"\033[0mBuilding CoarseLeadingForest (label:{cat}, label_size:{cat_size})"
-            )
-            if cat_size < 5:
+            if cat_size <= 20:
                 for ind in list(cat_items.keys()):
                     clf_weight[ind] = 1.0 / max(cat_size, 1.0)
                 continue
+            processing_bar.set_description(
+                f"\033[0mBuilding CoarseLeadingForest (label:{cat}, label_size:{cat_size})"
+            )
 
-            
             ind = torch.LongTensor(list(cat_items.keys()))
             metric = "cosine" if self.algorithm_opt["cos_loss"] else "euclidean"
             clf = CoarseLeadingForest(samples=list(cat_items.values()), metric=metric)
