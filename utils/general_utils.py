@@ -1,9 +1,11 @@
 ######################################
 #         Kaihua Tang
 ######################################
+import os
 import torch
-import numpy as np
+import random
 import importlib
+import numpy as np
 
 
 def count_dataset(train_loader):
@@ -167,3 +169,14 @@ def calculate_precision(prediction, label, num_class, split_mask=None):
 def calculate_f1(recall, precision):
     f1 = 2 * recall * precision / (recall + precision)
     return f1
+
+
+def seed_torch(seed=25):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True

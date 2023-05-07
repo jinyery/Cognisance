@@ -41,19 +41,15 @@ class CoarseLeadingForest:
         self,
         samples: list[list[int]],
         metric="euclidean",
-        min_dist=0.05,
-        max_dist=0.05,
-        is_proportion=True,
+        min_dist=None,
+        max_dist=None,
         max_sample_size=10000,
     ) -> None:
         self.metric = metric
         self.min_dist = min_dist
         self.max_dist = max_dist
-        self.is_proportion = is_proportion
         self.max_sample_size = max_sample_size
-        if not is_proportion:
-            self.min_dist_val = self.min_dist
-            self.max_dist_val = self.max_dist
+
         self.root_ids: list[int] = list()
         self.coarse_nodes: list[CoarseNode] = list()
         self.compute_leader(np.array(samples, dtype=np.float32))
@@ -99,16 +95,21 @@ class CoarseLeadingForest:
                 if end > len(samples):
                     end = len(samples)
                 dist[i:end] = pair_dist(samples[i:end], samples, metric=self.metric)
-        if self.is_proportion:
-            dist_size = len(samples) ** 2
-            tmp_dist = np.sort(dist.reshape(-1))
-            self.min_dist_val = tmp_dist[int(self.min_dist * dist_size)]
-            self.max_dist_val = tmp_dist[int((1 - self.max_dist) * dist_size)]
+
+        if self.min_dist is None or self.max_dist is None:
+            cardinality = 0
+            end_idx = max(int(len(samples) * 0.1), 2)
+            for i in range(len(samples)):
+                tmp_dist = np.sort(dist[i])
+                cardinality += np.mean(tmp_dist[:end_idx])
+            cardinality /= len(samples)
+            self.min_dist = cardinality * 2
+            self.max_dist = cardinality * 8
         return dist
 
     def _compute_density(self, dist: np.array) -> np.array:
-        tmp = np.exp(-((dist / self.max_dist_val) ** 2))
-        tmp[dist > self.max_dist_val] = 0
+        tmp = np.exp(-((dist / self.max_dist) ** 2))
+        tmp[dist > self.max_dist] = 0
         np.fill_diagonal(tmp, 0)
         return np.sum(tmp, axis=0)
 
@@ -117,7 +118,6 @@ class CoarseLeadingForest:
         self.coarse_nodes.clear()
         dist = self._compute_distance(samples)
         dens = self._compute_density(dist=dist)
-
         accessed = np.full(len(dens), False)
         density_argsort = np.argsort(dens)[::-1]
         for i in range(accessed.size):
@@ -128,14 +128,14 @@ class CoarseLeadingForest:
             node = density_argsort[i]
             if accessed[node]:
                 continue
-            members = np.where(dist[node] < self.min_dist_val)[0]
+            members = np.where(dist[node] <= self.min_dist)[0]
             not_accessed = np.where(accessed == False)[0]
             members = np.intersect1d(members, not_accessed)
             members = members.tolist()
             accessed[members] = True
 
             spare = np.where(dens >= dens[node])[0]
-            abandoned = np.where(dist[node] > self.max_dist_val)[0]
+            abandoned = np.where(dist[node] > self.max_dist)[0]
             abandoned = np.append(abandoned, not_accessed)
             abandoned = np.append(abandoned, members)
             spare = np.setdiff1d(spare, abandoned)

@@ -59,11 +59,7 @@ if __name__ == "__main__":
     # ============================================================================
     # fix random seed
     logger.info('=====> Using fixed random seed: ' + str(args.seed))
-    random.seed(args.seed)
-    np.random.random(args.seed)
-    torch.manual_seed(args.seed)
-    torch.cuda.manual_seed(args.seed)
-    torch.cuda.manual_seed_all(args.seed)
+    utils.seed_torch(args.seed)
 
     # ============================================================================
     # load config

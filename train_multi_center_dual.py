@@ -291,7 +291,7 @@ class train_multi_center_dual:
         processing_bar = tqdm(cat_feat.items())
         for cat, cat_items in processing_bar:
             cat_size = len(cat_items)
-            if cat_size <= 20:
+            if cat_size < 5:
                 for ind in list(cat_items.keys()):
                     clf_weight[ind] = 1.0 / max(cat_size, 1.0)
                 continue
