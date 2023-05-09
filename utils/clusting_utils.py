@@ -97,14 +97,12 @@ class CoarseLeadingForest:
                 dist[i:end] = pair_dist(samples[i:end], samples, metric=self.metric)
 
         if self.min_dist is None or self.max_dist is None:
-            cardinality = 0
-            end_idx = max(int(len(samples) * 0.1), 2)
+            base = 0
             for i in range(len(samples)):
-                tmp_dist = np.sort(dist[i])
-                cardinality += np.mean(tmp_dist[:end_idx])
-            cardinality /= len(samples)
-            self.min_dist = cardinality * 2
-            self.max_dist = cardinality * 8
+                base += np.sort(dist[i])[1]
+            base /= len(samples)
+            self.min_dist = base * 0.6
+            self.max_dist = base * 3.4
         return dist
 
     def _compute_density(self, dist: np.array) -> np.array:
@@ -121,10 +119,9 @@ class CoarseLeadingForest:
         accessed = np.full(len(dens), False)
         density_argsort = np.argsort(dens)[::-1]
         for i in range(accessed.size):
-            print(
-                f"\033[7m\r[CoarseLeadingForest:building node {i+1}/{accessed.size}]",
-                end="\033[0m",
-            )
+            print_str = f"\033[7m\r[CLF:building node {i+1}/{accessed.size}]"
+            print(print_str, end="")
+
             node = density_argsort[i]
             if accessed[node]:
                 continue
@@ -154,6 +151,9 @@ class CoarseLeadingForest:
             else:
                 self.coarse_nodes[ldr_id].add_subordinate(node_id)
             self.coarse_nodes.append(coarse_node)
+            
+            print_end = "\033[0m\r" + " " * len(print_str) + "\r"
+            print(print_end, end="")
 
     def leader_vector(self):
         leader_vector = np.full(len(self.coarse_nodes), -1)

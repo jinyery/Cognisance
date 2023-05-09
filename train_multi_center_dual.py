@@ -296,7 +296,7 @@ class train_multi_center_dual:
                     clf_weight[ind] = 1.0 / max(cat_size, 1.0)
                 continue
             processing_bar.set_description(
-                f"\033[0mBuilding CoarseLeadingForest (label:{cat}, label_size:{cat_size})"
+                f"Building CoarseLeadingForest (label:{cat}, label_size:{cat_size})"
             )
 
             ind = torch.LongTensor(list(cat_items.keys()))
