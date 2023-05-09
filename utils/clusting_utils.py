@@ -101,8 +101,8 @@ class CoarseLeadingForest:
             for i in range(len(samples)):
                 base += np.sort(dist[i])[1]
             base /= len(samples)
-            self.min_dist = base * 0.6
-            self.max_dist = base * 3.4
+            self.min_dist = base * 0.5
+            self.max_dist = base * 2.5
         return dist
 
     def _compute_density(self, dist: np.array) -> np.array:
