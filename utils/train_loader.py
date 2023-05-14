@@ -33,9 +33,8 @@ from train_multi_center_dual import train_multi_center_dual
 def train_loader(config):
     if (
         config["training_opt"]["type"] == "multi_center_dual"
-        or config["training_opt"]["type"] == "multi_center_dual_cos"
         or config["training_opt"]["type"] == "multi_center_dual_false"
-        or config["training_opt"]["type"] == "multi_center_dual_false_cos"
+        or config["training_opt"]["type"] == "multi_center_dual_mix"
     ):
         return train_multi_center_dual
     

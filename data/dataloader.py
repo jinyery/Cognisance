@@ -32,6 +32,7 @@ def get_loader(config, phase, testset, logger):
                              logger=logger)
     elif config['dataset']['name'] in ('ImageNet-LT', 'ImageNet-BL'):
         split = ImageNet_LT(phase=phase,
+                             data_path=config['dataset']['data_path'], 
                              anno_path=config['dataset']['anno_path'],
                              testset=testset,
                              rgb_mean=config['dataset']['rgb_mean'],

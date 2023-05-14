@@ -214,21 +214,6 @@ center_dual:
   # env_type : correctness / inter / intra / inter_intra / simple_aug
 
 
-# center loss with dual env pipeline
-center_dual_cos:
-  test_type: baseline
-  sampler: DistributionSampler # WeightedSampler / DistributionSampler
-  num_sampler: 2
-  batch_split: True
-  num_epochs: 100
-  loss_type: CrossEntropy # BalancedSoftmax
-  backbone_type: ResNext
-  classifier_type: FC
-  algorithm_opt: {env_type : intra, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, cos_loss: True} 
-  # env_type : correctness / inter / intra / inter_intra / simple_aug
-
-
 # center loss with single env pipeline
 center_single:
   test_type: baseline
@@ -476,10 +461,10 @@ irm_dual:
 ############################################################################
 
 
-# center loss with dual env pipeline
+# multi center loss with dual env pipeline
 multi_center_dual:
   test_type: baseline
-  sampler: DistributionSampler # WeightedSampler / DistributionSampler
+  sampler: DistributionSampler
   num_sampler: 2
   batch_split: True
   num_epochs: 100
@@ -487,13 +472,13 @@ multi_center_dual:
   backbone_type: ResNext
   classifier_type: FC
   algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, real_multi: True, cos_loss: False} 
-  # env_type : correctness / inter / intra / inter_intra / simple_aug
+                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 1} 
 
-# center loss with dual env pipeline
+
+# multi center loss with dual env pipeline.(In fact, there is only one center)
 multi_center_dual_false:
   test_type: baseline
-  sampler: DistributionSampler # WeightedSampler / DistributionSampler
+  sampler: DistributionSampler
   num_sampler: 2
   batch_split: True
   num_epochs: 100
@@ -501,27 +486,13 @@ multi_center_dual_false:
   backbone_type: ResNext
   classifier_type: FC
   algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, real_multi: False, cos_loss: False} 
-  # env_type : correctness / inter / intra / inter_intra / simple_aug
+                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 0} 
 
-# center loss with dual env pipeline
-multi_center_dual_cos:
-  test_type: baseline
-  sampler: DistributionSampler # WeightedSampler / DistributionSampler
-  num_sampler: 2
-  batch_split: True
-  num_epochs: 100
-  loss_type: CrossEntropy # BalancedSoftmax
-  backbone_type: ResNext
-  classifier_type: FC
-  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, real_multi: True, cos_loss: True} 
-  # env_type : correctness / inter / intra / inter_intra / simple_aug
 
-# center loss with dual env pipeline
-multi_center_dual_false_cos:
+# multi center loss with dual env pipeline.(Only use multi center loss when epoch is equal to the last one in update_milestones)
+multi_center_dual_mix:
   test_type: baseline
-  sampler: DistributionSampler # WeightedSampler / DistributionSampler
+  sampler: DistributionSampler
   num_sampler: 2
   batch_split: True
   num_epochs: 100
@@ -529,5 +500,4 @@ multi_center_dual_false_cos:
   backbone_type: ResNext
   classifier_type: FC
   algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, real_multi: False, cos_loss: True} 
-  # env_type : correctness / inter / intra / inter_intra / simple_aug
+                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 2} 

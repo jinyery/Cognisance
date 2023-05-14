@@ -25,6 +25,11 @@ class COCO_LT(data.Dataset):
         else:
             full_phase = phase
         logger.info('====== The Current Split is : {}'.format(full_phase))
+        if "~" in data_path:
+            data_path = os.path.expanduser(data_path)
+        if "~" in anno_path:
+            anno_path = os.path.expanduser(anno_path)
+        logger.info('====== The data_path is : {}, the anno_path is {}.'.format(data_path, anno_path))
         self.logger = logger
 
         self.dataset_info = {}

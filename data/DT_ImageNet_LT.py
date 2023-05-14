@@ -14,7 +14,7 @@ from PIL import Image
 from randaugment import RandAugment
 
 class ImageNet_LT(data.Dataset):
-    def __init__(self, phase, anno_path, testset, rgb_mean, rgb_std, rand_aug, output_path, logger):
+    def __init__(self, phase, data_path, anno_path, testset, rgb_mean, rgb_std, rand_aug, output_path, logger):
         super(ImageNet_LT, self).__init__()
         valid_phase = ['train', 'val', 'test']
         assert phase in valid_phase
@@ -25,11 +25,17 @@ class ImageNet_LT(data.Dataset):
         else:
             full_phase = phase
         logger.info('====== The Current Split is : {}'.format(full_phase))
+        if "~" in data_path:
+            data_path = os.path.expanduser(data_path)
+        if "~" in anno_path:
+            anno_path = os.path.expanduser(anno_path)
+        logger.info('====== The data_path is : {}, the anno_path is {}.'.format(data_path, anno_path))
         self.logger = logger
 
         self.dataset_info = {}
         self.phase = phase
         self.rand_aug = rand_aug
+        self.data_path = data_path
 
         # load annotation
         self.annotations = json.load(open(anno_path))
@@ -63,7 +69,8 @@ class ImageNet_LT(data.Dataset):
         rarity = self.frequencies[index]
 
         path = os.path.basename(path)
-        with open(os.path.join(self.data_path, path), 'rb') as f:
+        dir_path = path.split("_", 1)[0]
+        with open(os.path.join(self.data_path, dir_path, path), 'rb') as f:
             sample = Image.open(f).convert('RGB')
         
         if self.transform is not None:

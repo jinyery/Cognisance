@@ -55,6 +55,7 @@ class train_multi_center_dual:
         self.scheduler = create_scheduler(self.optimizer, logger, config)
         self.eval = eval
         self.training_opt = config["training_opt"]
+        self.multi_type = self.algorithm_opt["multi_type"]
 
         self.checkpoint = Checkpoint(config)
 
@@ -66,28 +67,18 @@ class train_multi_center_dual:
 
         # get loss
         self.loss_fc = create_loss(logger, config, self.train_loader)
-        if self.algorithm_opt["real_multi"]:
-            if self.algorithm_opt["cos_loss"]:
-                self.loss_center = MultiCenterCosLoss(
-                    num_classes=classifier_args["num_classes"],
-                    feat_dim=classifier_args["feat_dim"],
-                )
-            else:
-                self.loss_center = MultiCenterLoss(
-                    num_classes=classifier_args["num_classes"],
-                    feat_dim=classifier_args["feat_dim"],
-                )
+        if "cos_loss" in self.algorithm_opt and self.algorithm_opt["cos_loss"]:
+            self.metric = "cosine"
+            self.loss_center = MultiCenterCosLoss(
+                num_classes=classifier_args["num_classes"],
+                feat_dim=classifier_args["feat_dim"],
+            )
         else:
-            if self.algorithm_opt["cos_loss"]:
-                self.loss_center = CenterCosLoss(
-                    num_classes=classifier_args["num_classes"],
-                    feat_dim=classifier_args["feat_dim"],
-                )
-            else:
-                self.loss_center = CenterLoss(
-                    num_classes=classifier_args["num_classes"],
-                    feat_dim=classifier_args["feat_dim"],
-                )
+            self.metric = "euclidean"
+            self.loss_center = MultiCenterLoss(
+                num_classes=classifier_args["num_classes"],
+                feat_dim=classifier_args["feat_dim"],
+            )
         self.center_optimizer = torch.optim.SGD(self.loss_center.parameters(), lr=0.5)
 
         # set eval
@@ -153,15 +144,12 @@ class train_multi_center_dual:
 
                 # center loss
                 self.center_optimizer.zero_grad()
-                if self.algorithm_opt["real_multi"]:
-                    loss_ct = (
-                        self.loss_center(
-                            features, labels, self.get_label_center(labels, indexs)
-                        )
-                        * center_weight
+                loss_ct = (
+                    self.loss_center(
+                        features, labels, self.get_label_center(labels, indexs)
                     )
-                else:
-                    loss_ct = self.loss_center(features, labels) * center_weight
+                    * center_weight
+                )
                 iter_info_print["center_loss"] = loss_ct.sum().item()
 
                 # backward
@@ -238,7 +226,11 @@ class train_multi_center_dual:
 
                 if self.algorithm_opt["env_type"] == "clf":
                     self.update_env_by_clf(env1_loader, env2_loader, total_image)
-                    self.update_center_loss()
+                    if self.multi_type == 1 or (
+                        self.multi_type == 2
+                        and epoch == self.algorithm_opt["update_milestones"][-1]
+                    ):
+                        self.update_center_loss()
                 else:
                     raise ValueError("Wrong Env Type")
 
@@ -300,8 +292,7 @@ class train_multi_center_dual:
             )
 
             ind = torch.LongTensor(list(cat_items.keys()))
-            metric = "cosine" if self.algorithm_opt["cos_loss"] else "euclidean"
-            clf = CoarseLeadingForest(samples=list(cat_items.values()), metric=metric)
+            clf = CoarseLeadingForest(list(cat_items.values()), metric=self.metric)
             self.cat_ind[cat] = ind
             self.cat_clf[cat] = clf
             weights = torch.ones(len(ind))
@@ -311,6 +302,10 @@ class train_multi_center_dual:
             weights /= len(paths)
             paths_flatten = [reduce(add, path) for path in paths]
             for i, path in enumerate(paths):
+                if len(path) == 1:
+                    self.logger.info(
+                        f"Warning:{ind[paths_flatten[i]]} maybe the noise!"
+                    )
                 weights[paths_flatten[i]] /= len(path)
                 for nodes in path:
                     weights[nodes] /= len(nodes)
@@ -340,8 +335,6 @@ class train_multi_center_dual:
         return clf_weight
 
     def update_center_loss(self):
-        if not self.algorithm_opt["real_multi"]:
-            return
         max_num_centers = 1
         label_center_list = list()
         for cat, clf in self.cat_clf.items():
