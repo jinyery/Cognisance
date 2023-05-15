@@ -286,6 +286,9 @@ class train_multi_center_dual:
         clf_weight = torch.zeros(total_image).fill_(0.0)
         processing_bar = tqdm(cat_feat.items())
         for cat, cat_items in processing_bar:
+            ind = torch.LongTensor(list(cat_items.keys()))
+            self.cat_ind[cat] = ind
+
             cat_size = len(cat_items)
             if cat_size < 5:
                 for ind in list(cat_items.keys()):
@@ -295,9 +298,7 @@ class train_multi_center_dual:
                 f"Building CoarseLeadingForest (label:{cat}, label_size:{cat_size})"
             )
 
-            ind = torch.LongTensor(list(cat_items.keys()))
             clf = CoarseLeadingForest(list(cat_items.values()), metric=self.metric)
-            self.cat_ind[cat] = ind
             self.cat_clf[cat] = clf
             weights = torch.ones(len(ind))
             paths, repetitions = clf.generate_path(detailed=True)
@@ -342,7 +343,11 @@ class train_multi_center_dual:
     def update_center_loss(self):
         max_num_centers = 1
         label_center_list = list()
-        for cat, clf in self.cat_clf.items():
+        for cat in self.cat_ind.keys():
+            if cat not in self.cat_clf:
+                label_center_list.append(None)
+                continue
+            clf = self.cat_clf[cat]
             num_tree = clf.num_tree()
             if num_tree > max_num_centers:
                 max_num_centers = num_tree

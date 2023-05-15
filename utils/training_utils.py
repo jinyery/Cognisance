@@ -481,6 +481,9 @@ class MultiCenterLoss(nn.Module):
         if default_centers is not None:
             assert self.num_classes == len(default_centers)
             for i in range(self.num_classes):
+                if default_centers[i] is None:
+                    centers[i][0] = self.centers[i][0].clone().detach()
+                    continue
                 for j, default_center in enumerate(default_centers[i]):
                     centers[i][j] = torch.Tensor(default_center)
 
