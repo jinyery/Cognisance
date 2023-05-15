@@ -86,6 +86,10 @@ class train_multi_center_dual:
             test_func = test_loader(config)
             self.testing = test_func(config, logger, model, classifier, val=True)
 
+        self.plain = False
+        if "plain" in self.algorithm_opt and self.algorithm_opt["plain"]:
+            self.plain = True
+
     def get_center_weight(self, epoch):
         center_weight = self.algorithm_opt["center_weights"][0]
         for i, ms in enumerate(self.algorithm_opt["center_milestones"]):
@@ -311,24 +315,25 @@ class train_multi_center_dual:
                     weights[nodes] /= len(nodes)
             weights /= repetitions
 
-            # use Pareto principle to determine the scale parameter
-            weights += 1e-5
-            head_mean = (
-                torch.topk(weights, k=int(cat_size * 0.8), largest=False)[0]
-                .mean()
-                .item()
-            )
-            tail_mean = (
-                torch.topk(weights, k=int(cat_size * 0.2), largest=True)[0]
-                .mean()
-                .item()
-            )
-            scale = tail_mean / head_mean + 1e-5
-            exp_scale = (
-                torch.FloatTensor([tg_scale]).log() / torch.FloatTensor([scale]).log()
-            )
-            exp_scale = exp_scale.clamp(min=1, max=10)
-            weights = weights**exp_scale
+            if not self.plain:
+                # use Pareto principle to determine the scale parameter
+                weights += 1e-5
+                head_mean = (
+                    torch.topk(weights, k=int(cat_size * 0.8), largest=False)[0]
+                    .mean()
+                    .item()
+                )
+                tail_mean = (
+                    torch.topk(weights, k=int(cat_size * 0.2), largest=True)[0]
+                    .mean()
+                    .item()
+                )
+                scale = tail_mean / head_mean + 1e-5
+                exp_scale = (
+                    torch.FloatTensor([tg_scale]).log() / torch.FloatTensor([scale]).log()
+                )
+                exp_scale = exp_scale.clamp(min=1, max=10)
+                weights = weights**exp_scale
             weights = weights + 1e-12
             weights = weights / weights.sum()
             clf_weight[ind] = weights

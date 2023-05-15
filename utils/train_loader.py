@@ -35,6 +35,7 @@ def train_loader(config):
         config["training_opt"]["type"] == "multi_center_dual"
         or config["training_opt"]["type"] == "multi_center_dual_false"
         or config["training_opt"]["type"] == "multi_center_dual_mix"
+        or config["training_opt"]["type"] == "multi_center_dual_plain"
     ):
         return train_multi_center_dual
     
