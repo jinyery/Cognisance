@@ -514,4 +514,18 @@ multi_center_dual_plain:
   backbone_type: ResNext
   classifier_type: FC
   algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
+                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 1, plain: True} 
+
+
+# multi center loss with dual env pipeline.(Do not apply the Pareto principle)
+multi_center_dual_false_plain:
+  test_type: baseline
+  sampler: DistributionSampler
+  num_sampler: 2
+  batch_split: True
+  num_epochs: 100
+  loss_type: CrossEntropy # BalancedSoftmax
+  backbone_type: ResNext
+  classifier_type: FC
+  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
                   center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 0, plain: True} 
