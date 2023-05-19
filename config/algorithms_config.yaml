@@ -472,6 +472,20 @@ multi_center_dual:
   backbone_type: ResNext
   classifier_type: FC
   algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
+                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 2} 
+
+
+# multi center loss with dual env pipeline.(Only use multi center loss after the last update_milestone)
+multi_center_dual_mix:
+  test_type: baseline
+  sampler: DistributionSampler
+  num_sampler: 2
+  batch_split: True
+  num_epochs: 100
+  loss_type: CrossEntropy # BalancedSoftmax
+  backbone_type: ResNext
+  classifier_type: FC
+  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
                   center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 1} 
 
 
@@ -489,8 +503,8 @@ multi_center_dual_false:
                   center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 0} 
 
 
-# multi center loss with dual env pipeline.(Only use multi center loss when epoch is equal to the last one in update_milestones)
-multi_center_dual_mix:
+# multi center loss with dual env pipeline.(Do not apply the Pareto principle)
+multi_center_dual_plain:
   test_type: baseline
   sampler: DistributionSampler
   num_sampler: 2
@@ -500,11 +514,11 @@ multi_center_dual_mix:
   backbone_type: ResNext
   classifier_type: FC
   algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 2} 
+                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 2, plain: True} 
 
 
-# multi center loss with dual env pipeline.(Do not apply the Pareto principle)
-multi_center_dual_plain:
+# multi center loss with dual env pipeline.(Do not apply the Pareto principle and only use multi center loss after the last update_milestone)
+multi_center_dual_plain_mix:
   test_type: baseline
   sampler: DistributionSampler
   num_sampler: 2
@@ -517,8 +531,8 @@ multi_center_dual_plain:
                   center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 1, plain: True} 
 
 
-# multi center loss with dual env pipeline.(Do not apply the Pareto principle)
-multi_center_dual_false_plain:
+# multi center loss with dual env pipeline.(Do not apply the Pareto principle and only one center)
+multi_center_dual_plain_false:
   test_type: baseline
   sampler: DistributionSampler
   num_sampler: 2

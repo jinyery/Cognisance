@@ -230,8 +230,8 @@ class train_multi_center_dual:
 
                 if self.algorithm_opt["env_type"] == "clf":
                     self.update_env_by_clf(env1_loader, env2_loader, total_image)
-                    if self.multi_type == 1 or (
-                        self.multi_type == 2
+                    if self.multi_type == 2 or (
+                        self.multi_type == 1
                         and epoch == self.algorithm_opt["update_milestones"][-1]
                     ):
                         self.update_center_loss()

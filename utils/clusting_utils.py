@@ -99,7 +99,7 @@ class CoarseLeadingForest:
         if self.min_dist is None or self.max_dist is None:
             base = 0
             for i in range(len(samples)):
-                base += np.sort(dist[i])[1]
+                base += np.mean(np.sort(dist[i])[1:3])
             base /= len(samples)
             self.min_dist = base * 0.5
             self.max_dist = base * 2.5
