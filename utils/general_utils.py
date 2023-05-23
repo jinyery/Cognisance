@@ -83,6 +83,8 @@ def update(config, algo_config, args):
         config['dataset']['rand_aug'] = True
     if args.save_all:
         config['saving_opt']['save_all'] = True
+    if args.denosing:
+        config['training_opt']['denosing'] = True
     return config
 
 

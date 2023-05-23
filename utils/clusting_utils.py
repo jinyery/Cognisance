@@ -99,10 +99,11 @@ class CoarseLeadingForest:
         if self.min_dist is None or self.max_dist is None:
             base = 0
             for i in range(len(samples)):
-                base += np.mean(np.sort(dist[i])[1:3])
+                top_k = np.sort(dist[i])[1:4]
+                base += np.mean(top_k)
             base /= len(samples)
-            self.min_dist = base * 0.5
-            self.max_dist = base * 2.5
+            self.min_dist = base * 0.3
+            self.max_dist = base * 2.7
         return dist
 
     def _compute_density(self, dist: np.array) -> np.array:
@@ -151,7 +152,7 @@ class CoarseLeadingForest:
             else:
                 self.coarse_nodes[ldr_id].add_subordinate(node_id)
             self.coarse_nodes.append(coarse_node)
-            
+
             print_end = "\033[0m\r" + " " * len(print_str) + "\r"
             print(print_end, end="")
 

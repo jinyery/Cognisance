@@ -38,8 +38,9 @@ if __name__ == "__main__":
     parser.add_argument('--model_type', default=None, type=str, help='Reset the type of model.')
     parser.add_argument('--train_type', default=None, type=str, help='Reset the type of traning strategy.')
     parser.add_argument('--sample_type', default=None, type=str, help='Reset the type of sampling strategy.')
-    parser.add_argument('--rand_aug', action='store_true', help='Apply Random Augmentation During Training.')
-    parser.add_argument('--save_all', action='store_true', help='Save All Output Information During Testing.')
+    parser.add_argument('--rand_aug', action='store_true', help='Apply Random-Augmentation during training.')
+    parser.add_argument('--save_all', action='store_true', help='Save all output information during testing.')
+    parser.add_argument('--denosing', action='store_true', help='Adding this option will remove noise samples through unsupervised learning.')
 
     args = parser.parse_args()
 

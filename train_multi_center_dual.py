@@ -90,6 +90,11 @@ class train_multi_center_dual:
         if "plain" in self.algorithm_opt and self.algorithm_opt["plain"]:
             self.plain = True
 
+        self.noise_ind = list()
+        self.denosing = False
+        if "denosing" in self.training_opt and self.training_opt["denosing"]:
+            self.denosing = True
+
     def get_center_weight(self, epoch):
         center_weight = self.algorithm_opt["center_weights"][0]
         for i, ms in enumerate(self.algorithm_opt["center_milestones"]):
@@ -276,10 +281,17 @@ class train_multi_center_dual:
         )
         env2_score = env2_score * clf_weight
 
+        if len(self.noise_ind) > 0:
+            self.logger.info(f"These samples maybe noise:{self.noise_ind}.")
+        if self.denosing:
+            env1_score[self.noise_ind] = 0
+            env2_score[self.noise_ind] = 0
+
         env1_loader.sampler.set_parameter(env1_score)
         env2_loader.sampler.set_parameter(env2_score)
 
     def generate_clf_weight(self, cat_feat, total_image, tg_scale=4.0):
+        self.noise_ind.clear()
         self.cat_ind: dict[any, torch.LongTensor] = dict()
         self.cat_clf: dict[any, CoarseLeadingForest] = dict()
         # normalize
@@ -307,10 +319,8 @@ class train_multi_center_dual:
             weights /= len(paths)
             paths_flatten = [reduce(add, path) for path in paths]
             for i, path in enumerate(paths):
-                if len(path) == 1:
-                    self.logger.info(
-                        f"Warning:{ind[paths_flatten[i]]} maybe the noise!"
-                    )
+                if len(paths_flatten[i]) == 1:
+                    self.noise_ind.extend(ind[paths_flatten[i]])
                 weights[paths_flatten[i]] /= len(path)
                 for nodes in path:
                     weights[nodes] /= len(nodes)
@@ -331,7 +341,8 @@ class train_multi_center_dual:
                 )
                 scale = tail_mean / head_mean + 1e-5
                 exp_scale = (
-                    torch.FloatTensor([tg_scale]).log() / torch.FloatTensor([scale]).log()
+                    torch.FloatTensor([tg_scale]).log()
+                    / torch.FloatTensor([scale]).log()
                 )
                 exp_scale = exp_scale.clamp(min=1, max=10)
                 weights = weights**exp_scale
