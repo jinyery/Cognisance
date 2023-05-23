@@ -2,9 +2,9 @@
 
 func() {
     echo "Usage:"
-    echo "run_all.sh [-n N-th] [-s SEED] [-r RANGE] [-d DATASET] [-m MODE] [-e DENOSING]"
+    echo "run_all.sh [-n NAME] [-s SEED] [-r RANGE] [-d DATASET] [-m MODE] [-e DENOSING]"
     echo "Description:"
-    echo "N-th, the N-th times of the task.(default to 0)"
+    echo "NAME, the Name of the task.(default to '')"
     echo "SEED, the random number seed.(default to 25)"
     echo "RANGE, the range of task.(all/mine/plain/notplain/single)"
     echo "MODE, it's required if the RANGE is single.(default to multi_center_dual)"
@@ -12,7 +12,7 @@ func() {
     exit 1
 }
 
-N_TH=0
+NAME=""
 SEED=25
 RANGE="all"
 DATASET="COCO_LT"
@@ -21,7 +21,7 @@ DENOSING=""
 
 while getopts 'n:s:r:d:m:eh' OPT; do
     case $OPT in
-    n) N_TH=$OPTARG ;;
+    n) NAME="$OPTARG" ;;
     s) SEED=$OPTARG ;;
     r) RANGE="$OPTARG" ;;
     d) DATASET="$OPTARG" ;;
@@ -34,8 +34,8 @@ done
 
 typeset -l OUTPUT_DIR
 OUTPUT_DIR="checkpoints/$DATASET/train"
-if [ $N_TH != 0 ]; then
-    OUTPUT_DIR="$OUTPUT_DIR/$N_TH"
+if [ "$NAME" != '' ]; then
+    OUTPUT_DIR="$OUTPUT_DIR/$NAME"
 fi
 
 echo "The random number seed is $SEED"
