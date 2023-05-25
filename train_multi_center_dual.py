@@ -311,16 +311,20 @@ class train_multi_center_dual:
             )
 
             clf = CoarseLeadingForest(list(cat_items.values()), metric=self.metric)
-            self.cat_clf[cat] = clf
-            weights = torch.ones(len(ind))
             paths, repetitions = clf.generate_path(detailed=True)
+            self.cat_clf[cat] = clf
+
+            weights = torch.ones(len(ind))
             repetitions = torch.Tensor(repetitions)
             weights *= repetitions
             weights /= len(paths)
             paths_flatten = [reduce(add, path) for path in paths]
             for i, path in enumerate(paths):
+                # Filter out samples that may be noise.
                 if len(paths_flatten[i]) == 1:
-                    self.noise_ind.extend(ind[paths_flatten[i]])
+                    tmp = ind[paths_flatten[i]]
+                    self.noise_ind.extend(tmp.tolist())
+
                 weights[paths_flatten[i]] /= len(path)
                 for nodes in path:
                     weights[nodes] /= len(nodes)
