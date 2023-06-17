@@ -9,6 +9,7 @@ func() {
     echo "RANGE, the range of task.(all/mine/plain/notplain/single)"
     echo "MODE, it's required if the RANGE is single.(default to multi_center_dual)"
     echo "DENOSING, Adding this option will remove noise samples through unsupervised learning."
+    echo "Aug, Adding this option will remove noise samples through unsupervised learning."
     exit 1
 }
 

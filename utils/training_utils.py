@@ -36,11 +36,19 @@ def create_optimizer(model, classifier, logger, config):
     for _, val in model.named_parameters():
         if not val.requires_grad:
             continue
-        all_params += [{"params": [val], "lr": lr, "weight_decay": weight_decay}]
+        if "momentum" in training_opt['optim_params']:
+            momentum = training_opt['optim_params']["momentum"]
+            all_params += [{"params": [val], "lr": lr, "weight_decay": weight_decay, "momentum":momentum}]
+        else:
+            all_params += [{"params": [val], "lr": lr, "weight_decay": weight_decay}]
     for _, val in classifier.named_parameters():
         if not val.requires_grad:
             continue
-        all_params += [{"params": [val], "lr": lr, "weight_decay": weight_decay}]
+        if "momentum" in training_opt['optim_params']:
+            momentum = training_opt['optim_params']["momentum"]
+            all_params += [{"params": [val], "lr": lr, "weight_decay": weight_decay, "momentum":momentum}]
+        else:
+            all_params += [{"params": [val], "lr": lr, "weight_decay": weight_decay}]
     
     if training_opt['optimizer'] == 'Adam':
         return optim.Adam(all_params)
