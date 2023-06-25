@@ -54,6 +54,7 @@ def update(config, algo_config, args):
         config['networks']['type'] = algo_info['backbone_type']
         config['classifiers']['type'] = algo_info['classifier_type']
         config['algorithm_opt'] = algo_info['algorithm_opt']
+        config['algorithm_opt']['mix_up'] = algo_info['mix_up'] if 'mix_up' in algo_info else False
         config['dataset']['rand_aug'] = algo_info['rand_aug'] if 'rand_aug' in algo_info else False
 
         if 'num_epochs' in algo_info:

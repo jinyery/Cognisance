@@ -20,7 +20,7 @@ from functools import reduce
 from utils.clusting_utils import CoarseLeadingForest
 
 
-class train_multi_center_dual:
+class train_multi_center_dual_ride:
     def __init__(self, args, config, logger, eval=False):
         # ============================================================================
         # create model
@@ -75,13 +75,13 @@ class train_multi_center_dual:
             self.metric = "cosine"
             self.loss_center = MultiCenterCosLoss(
                 num_classes=classifier_args["num_classes"],
-                feat_dim=classifier_args["feat_dim"],
+                feat_dim=classifier_args["feat_dim"] * 3,
             )
         else:
             self.metric = "euclidean"
             self.loss_center = MultiCenterLoss(
                 num_classes=classifier_args["num_classes"],
-                feat_dim=classifier_args["feat_dim"],
+                feat_dim=classifier_args["feat_dim"] * 3,
             )
         self.center_optimizer = torch.optim.SGD(self.loss_center.parameters(), lr=0.5)
 
@@ -115,13 +115,17 @@ class train_multi_center_dual:
         y_a, y_b = y, y[index]
         return mixed_x, y_a, y_b, lam
 
-    def mixup_criterion(self, pred, y_a, y_b, lam):
-        return lam * self.loss_fc(pred, y_a) + (1 - lam) * self.loss_fc(pred, y_b)
+    def mixup_criterion(self, pred, y_a, y_b, lam, extra_info):
+        return lam * self.loss_fc(pred, y_a, extra_info) + (1 - lam) * self.loss_fc(
+            pred, y_b, extra_info
+        )
 
     def mixup_center_criterion(self, feat, y_a, y_b, lam, indexs):
-        return lam * self.loss_center(feat, y_a, self.get_label_center(y_a, indexs)) + (
+        return lam * self.loss_center(feat.view(feat.shape[0], -1), y_a) + (
             1 - lam
-        ) * self.loss_center(feat, y_b, self.get_label_center(y_b, indexs))
+        ) * self.loss_center(
+            feat.view(feat.shape[0], -1), y_b, self.get_label_center(y_b, indexs)
+        )
 
     def mixup_accuracy(self, pred, y_a, y_b, lam):
         correct = lam * (pred.max(1)[1] == y_a) + (1 - lam) * (pred.max(1)[1] == y_b)
@@ -131,7 +135,7 @@ class train_multi_center_dual:
     def run(self):
         # Start Training
         self.logger.info(
-            "=====> Start Center Loss with Dual Env Training... (mix_up:{self.mix_up}, rand_aug:{self.rand_aug})"
+            "=====> Start Center Loss with Dual Env and RIDE Backbone Training... (mix_up:{self.mix_up}, rand_aug:{self.rand_aug})"
         )
 
         # logit adjustment
@@ -164,6 +168,9 @@ class train_multi_center_dual:
 
             center_weight = self.get_center_weight(epoch)
 
+            if self.training_opt['loss'] == 'RIDE':
+                self.loss_fc.set_epoch(epoch)
+
             for step, (
                 (inputs1, labels1, _, indexs1),
                 (inputs2, labels2, _, indexs2),
@@ -187,14 +194,32 @@ class train_multi_center_dual:
                     inputs, labels_a, labels_b, lam = self.mixup_data(inputs, labels)
 
                 features = self.model(inputs)
-                predictions = self.classifier(features, add_inputs)
+                predictions, all_logits = self.classifier(features, add_inputs)
 
                 # calculate loss
-                if self.mix_up:
-                    loss_ce = self.mixup_criterion(predictions, labels_a, labels_b, lam)
+                if self.training_opt["loss"] == "RIDE":
+                    extra_info = {"logits": all_logits}
+                    if self.mix_up:
+                        loss_ce = self.mixup_criterion(
+                            predictions, labels_a, labels_b, lam, extra_info
+                        )
+                    else:
+                        loss_ce = self.loss_fc(predictions, labels, extra_info)
+                    iter_info_print[self.training_opt["loss"]] = loss_ce.sum().item()
                 else:
-                    loss_ce = self.loss_fc(predictions, labels)
-                iter_info_print[self.training_opt["loss"]] = loss_ce.sum().item()
+                    ce_losses = []
+                    for logit in all_logits:
+                        if self.mix_up:
+                            ce_losses.append(self.mixup_criterion(
+                            logit, labels_a, labels_b, lam
+                        ))
+                        else:
+                            ce_losses.append(self.loss_fc(logit, labels))
+                    loss_ce = sum(ce_losses)
+                    for i, branch_loss in enumerate(ce_losses):
+                        iter_info_print[
+                            self.training_opt["loss"] + "_{}".format(i)
+                        ] = branch_loss.sum().item()
 
                 # center loss
                 self.center_optimizer.zero_grad()
@@ -208,7 +233,9 @@ class train_multi_center_dual:
                 else:
                     loss_ct = (
                         self.loss_center(
-                            features, labels, self.get_label_center(labels, indexs)
+                            features.view(features.shape[0], -1),
+                            labels,
+                            self.get_label_center(labels, indexs),
                         )
                         * center_weight
                     )

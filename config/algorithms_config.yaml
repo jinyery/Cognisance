@@ -543,3 +543,91 @@ multi_center_dual_plain_false:
   classifier_type: FC
   algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
                   center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 0, plain: True} 
+
+
+# multi center loss with dual env pipeline (BalancedSoftmax version)
+multi_center_dual_blsoftmax:
+  test_type: baseline
+  sampler: DistributionSampler # WeightedSampler / DistributionSampler
+  num_sampler: 2
+  batch_split: True
+  num_epochs: 100
+  loss_type: BalancedSoftmax
+  backbone_type: ResNext
+  classifier_type: FC
+  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
+                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 2} 
+
+
+# multi center loss with dual env pipeline (Logit-Adj version)
+multi_center_dual_logit_adj:
+  test_type: LA
+  sampler: DistributionSampler # WeightedSampler / DistributionSampler
+  num_sampler: 2
+  batch_split: True
+  num_epochs: 100
+  loss_type: BalancedSoftmax
+  backbone_type: ResNext
+  classifier_type: LA
+  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80], tro: 1.0,
+                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 2} 
+
+
+# multi center loss with dual env pipeline (mixup version)
+multi_center_dual_mixup:
+  mix_up: True
+  test_type: baseline
+  sampler: DistributionSampler # WeightedSampler / DistributionSampler
+  num_sampler: 2
+  batch_split: True
+  num_epochs: 100
+  loss_type: CrossEntropy
+  backbone_type: ResNext
+  classifier_type: FC
+  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
+                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 2} 
+
+
+# multi center loss with dual env pipeline (randaug version)
+multi_center_dual_randaug:
+  rand_aug: True
+  test_type: baseline
+  sampler: DistributionSampler # WeightedSampler / DistributionSampler
+  num_sampler: 2
+  batch_split: True
+  num_epochs: 100
+  loss_type: CrossEntropy
+  backbone_type: ResNext
+  classifier_type: FC
+  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
+                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 2} 
+
+
+multi_center_dual_tade:
+  test_type: baseline
+  sampler: DistributionSampler # WeightedSampler / DistributionSampler
+  num_sampler: 2
+  batch_split: True
+  num_epochs: 100
+  loss_type: TADE # TADE / CrossEntropy
+  backbone_type: RIDE
+  classifier_type: RIDE
+  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80], 
+                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], tau: 2.0, triplet_loss: False, multi_type: 2} 
+  # env_type : correctness / inter / intra / inter_intra / simple_aug
+
+
+multi_center_dual_ride:
+  test_type: baseline
+  sampler: DistributionSampler # WeightedSampler / DistributionSampler
+  num_sampler: 2
+  batch_split: True
+  num_epochs: 100
+  loss_type: RIDE
+  backbone_type: RIDE
+  classifier_type: RIDE
+  scheduler: 'multistep'
+  scheduler_params: {gamma: 0.1, milestones: [60, 80]}
+  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80], 
+                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], diversity_factor: -0.2, triplet_loss: False, multi_type: 2} 
+  # env_type : correctness / inter / intra / inter_intra / simple_aug

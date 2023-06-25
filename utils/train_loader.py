@@ -28,6 +28,8 @@ from train_center_ride_mixup import train_center_ride_mixup
 from train_center_ldam_dual import train_center_ldam_dual
 from train_center_dual_mixup import train_center_dual_mixup
 from train_multi_center_dual import train_multi_center_dual
+from train_multi_center_dual_tade import train_multi_center_dual_tade
+from train_multi_center_dual_ride import train_multi_center_dual_ride
 
 
 def train_loader(config):
@@ -38,50 +40,62 @@ def train_loader(config):
         or config["training_opt"]["type"] == "multi_center_dual_plain"
         or config["training_opt"]["type"] == "multi_center_dual_plain_mix"
         or config["training_opt"]["type"] == "multi_center_dual_plain_false"
+        or config["training_opt"]["type"] == "multi_center_dual_mix_up"
+        or config["training_opt"]["type"] == "multi_center_dual_randaug"
+        or config["training_opt"]["type"] == "multi_center_dual_blsoftmax"
+        or config["training_opt"]["type"] == "multi_center_dual_logit_adj"
     ):
         return train_multi_center_dual
-    
-    if config['training_opt']['type'] in ('baseline', 'Focal'):
+    elif config["training_opt"]["type"] == "multi_center_dual_tade":
+        return train_multi_center_dual_tade
+    elif config["training_opt"]["type"] == "multi_center_dual_ride":
+        return train_multi_center_dual_ride
+
+    if config["training_opt"]["type"] in ("baseline", "Focal"):
         return train_baseline
-    elif config['training_opt']['type'] in ('LFF', 'LFFLA'):
+    elif config["training_opt"]["type"] in ("LFF", "LFFLA"):
         return train_lff
-    elif config['training_opt']['type'] in ('LA', 'FocalLA'):
+    elif config["training_opt"]["type"] in ("LA", "FocalLA"):
         return train_la
-    elif config['training_opt']['type'] in ('BBN'):
+    elif config["training_opt"]["type"] in ("BBN"):
         return train_bbn
-    elif config['training_opt']['type'] in ('TDE'):
+    elif config["training_opt"]["type"] in ("TDE"):
         return train_tde
-    elif config['training_opt']['type'] in ('mixup'):
+    elif config["training_opt"]["type"] in ("mixup"):
         return train_mixup
-    elif config['training_opt']['type'] in ('LDAM'):
+    elif config["training_opt"]["type"] in ("LDAM"):
         return train_ldam
-    elif config['training_opt']['type'] in ('RIDE'):
+    elif config["training_opt"]["type"] in ("RIDE"):
         return train_ride
-    elif config['training_opt']['type'] in ('TADE'):
+    elif config["training_opt"]["type"] in ("TADE"):
         return train_tade
-    elif config['training_opt']['type'] in ('stage1'):
+    elif config["training_opt"]["type"] in ("stage1"):
         return train_stage1
-    elif config['training_opt']['type'] in ('crt_stage2', 'lws_stage2'):
+    elif config["training_opt"]["type"] in ("crt_stage2", "lws_stage2"):
         return train_stage2
-    elif config['training_opt']['type'] in ('ride_stage2'):
+    elif config["training_opt"]["type"] in ("ride_stage2"):
         return train_stage2_ride
-    elif config['training_opt']['type'] in ('center_dual', 'env_dual', 'center_dual_cos'):
+    elif config["training_opt"]["type"] in (
+        "center_dual",
+        "env_dual",
+        "center_dual_cos",
+    ):
         return train_center_dual
-    elif config['training_opt']['type'] in ('center_single'):
+    elif config["training_opt"]["type"] in ("center_single"):
         return train_center_single
-    elif config['training_opt']['type'] in ('center_triple'):
+    elif config["training_opt"]["type"] in ("center_triple"):
         return train_center_triple
-    elif config['training_opt']['type'] in ('center_LDAM_dual'):
+    elif config["training_opt"]["type"] in ("center_LDAM_dual"):
         return train_center_ldam_dual
-    elif config['training_opt']['type'] in ('center_dual_mixup'):
+    elif config["training_opt"]["type"] in ("center_dual_mixup"):
         return train_center_dual_mixup
-    elif config['training_opt']['type'] in ('center_tade'):
+    elif config["training_opt"]["type"] in ("center_tade"):
         return train_center_tade
-    elif config['training_opt']['type'] in ('center_ride'):
+    elif config["training_opt"]["type"] in ("center_ride"):
         return train_center_ride
-    elif config['training_opt']['type'] in ('center_ride_mixup'):
+    elif config["training_opt"]["type"] in ("center_ride_mixup"):
         return train_center_ride_mixup
-    elif config['training_opt']['type'] in ('irm_dual'):
+    elif config["training_opt"]["type"] in ("irm_dual"):
         return train_irm_dual
     else:
-        raise ValueError('Wrong Train Type')
+        raise ValueError("Wrong Train Type")
