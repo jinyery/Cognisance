@@ -1,9 +1,22 @@
+import os
 import math
+import torch
+import random
 import pickle
 import argparse
 import numpy as np
-from utils.general_utils import seed_torch
-from _iNaturalistGeneration.inaturalist_train_forward import data_info
+from inaturalist_train_forward import data_info
+
+
+def seed_torch(seed=25):
+    random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
 
 
 def sampling_train_set(
