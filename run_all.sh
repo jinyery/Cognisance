@@ -7,16 +7,16 @@ func() {
     echo "NAME, the Name of the task.(default to '')"
     echo "SEED, the random number seed.(default to 25)"
     echo "RANGE, the range of task.(all/mine/plain/others/plus_others/single)"
+    echo "DATASET, the dataset of task.(COCO_LT/ImageNet_LT/INaturalist_LT, default to INaturalist_LT)"
     echo "MODE, it's required if the RANGE is 'single'.(default to multi_center_dual)"
     echo "DENOSING, Adding this option will remove noise samples through unsupervised learning."
-    echo "Aug, Adding this option will remove noise samples through unsupervised learning."
     exit 1
 }
 
 NAME=""
 SEED=25
 RANGE="all"
-DATASET="COCO_LT"
+DATASET="INaturalist_LT"
 MODE="multi_center_dual"
 DENOSING=""
 
