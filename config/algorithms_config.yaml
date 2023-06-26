@@ -19,8 +19,30 @@ baseline:
   algorithm_opt: {}
 
 
+blsoftmax:
+  test_type: baseline
+  sampler: default
+  num_epochs: 100
+  loss_type: BalancedSoftmax
+  backbone_type: ResNext
+  classifier_type: FC
+  algorithm_opt: {}
+
+
 # mixup
 mixup:
+  test_type: baseline
+  sampler: default
+  num_epochs: 100
+  loss_type: CrossEntropy
+  backbone_type: ResNext
+  classifier_type: FC
+  algorithm_opt: {}
+
+
+# rand_aug
+rand_aug:
+  rand_aug: True
   test_type: baseline
   sampler: default
   num_epochs: 100

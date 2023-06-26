@@ -51,7 +51,7 @@ def train_loader(config):
     elif config["training_opt"]["type"] == "multi_center_dual_ride":
         return train_multi_center_dual_ride
 
-    if config["training_opt"]["type"] in ("baseline", "Focal"):
+    if config["training_opt"]["type"] in ("baseline", "Focal", "blsoftmax", "rand_aug"):
         return train_baseline
     elif config["training_opt"]["type"] in ("LFF", "LFFLA"):
         return train_lff
