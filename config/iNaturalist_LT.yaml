@@ -1,7 +1,7 @@
 output_dir: null
 
 dataset:
-  name: 'INaturalist-LT'
+  name: 'iNaturalist-LT'
   data_path: ~/Datasets/inaturalist/
   anno_path: ~/Datasets/inaturalist/inaturalist_anno.pkl
   # lt      :  test distribution is long-tailed in both cateogies and atttributes

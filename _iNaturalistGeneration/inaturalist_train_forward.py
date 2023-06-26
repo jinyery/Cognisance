@@ -23,7 +23,7 @@ NUM_CLASSES = 8142
 OUTPUTS_DIR = os.path.join(os.path.dirname(__file__), "checkpoints")
 
 
-class INaturalistTrainSet(Dataset):
+class iNaturalistTrainSet(Dataset):
     def __init__(self, data_path, anno_path):
         if "~" in data_path:
             self.data_path = os.path.expanduser(data_path)
@@ -93,11 +93,11 @@ class INaturalistTrainSet(Dataset):
         )
 
 
-class INaturalistExtractSet(DataLoader):
+class iNaturalistExtractSet(DataLoader):
     def __init__(
         self,
         category,
-        all_set: INaturalistTrainSet,
+        all_set: iNaturalistTrainSet,
     ):
         self.category = category
         self.data_path = all_set.data_path
@@ -245,7 +245,7 @@ def train_model(train_set, num_epoch=NUM_EPOCH):
 
 def data_info(data_path, anno_path, model_path=None):
     cat_attr_inst = dict()
-    train_set = INaturalistTrainSet(data_path, anno_path)
+    train_set = iNaturalistTrainSet(data_path, anno_path)
     if model_path is None:
         model, _ = train_model(train_set)
     else:
@@ -255,7 +255,7 @@ def data_info(data_path, anno_path, model_path=None):
     with torch.no_grad():
         for cat in train_set.cat_inst.keys():
             cat_attr_inst[cat] = dict()
-            sub_set = INaturalistExtractSet(category=cat, all_set=train_set)
+            sub_set = iNaturalistExtractSet(category=cat, all_set=train_set)
             all_feat = []
             for inputs, _ in sub_set.get_loader():
                 inputs = inputs.cuda()

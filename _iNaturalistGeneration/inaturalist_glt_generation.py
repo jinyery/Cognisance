@@ -134,19 +134,19 @@ if __name__ == "__main__":
         "--data_path",
         default="~/Datasets/inaturalist/",
         type=str,
-        help="indicate the root path of train data for INaturalist.",
+        help="indicate the root path of train data for iNaturalist.",
     )
     parser.add_argument(
         "--anno_path",
         default="~/Datasets/inaturalist/train2018.json",
         type=str,
-        help="indicate the anno path of train data for INaturalist.",
+        help="indicate the anno path of train data for iNaturalist.",
     )
     parser.add_argument(
         "--out_path",
         default="./inaturalist_anno.pkl",
         type=str,
-        help="indicate the output path of anno data for INaturalist.",
+        help="indicate the output path of anno data for iNaturalist-LT.",
     )
     parser.add_argument(
         "--seed",
