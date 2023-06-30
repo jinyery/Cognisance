@@ -236,7 +236,7 @@ def train_model(train_set, num_epoch=NUM_EPOCH):
             }
             if not os.path.exists(OUTPUTS_DIR):
                 os.makedirs(OUTPUTS_DIR)
-            torch.save(output, os.path.join(OUTPUTS_DIR, f"epoch-{epoch}.pth"))
+            torch.save(output, os.join(OUTPUTS_DIR, f"epoch-{epoch}.pth"))
 
         # update scheduler
         scheduler.step()

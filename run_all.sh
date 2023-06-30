@@ -5,7 +5,7 @@ func() {
     echo "run_all.sh [-n NAME] [-s SEED] [-r RANGE] [-d DATASET] [-m MODE] [-e DENOSING]"
     echo "Description:"
     echo "NAME, the Name of the task.(default to '')"
-    echo "SEED, the random number seed.(default to 25)"
+    echo "SEED, the random number seed.(default to 3407)"
     echo "RANGE, the range of task.(all/mine/plain/others/plus_others/single)"
     echo "DATASET, the dataset of task.(COCO_LT/ImageNet_LT/iNaturalist_LT, default to iNaturalist_LT)"
     echo "MODE, it's required if the RANGE is 'single'.(default to multi_center_dual)"
@@ -14,7 +14,7 @@ func() {
 }
 
 NAME=""
-SEED=25
+SEED=3407
 RANGE="all"
 DATASET="iNaturalist_LT"
 MODE="multi_center_dual"
