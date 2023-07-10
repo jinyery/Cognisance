@@ -5,7 +5,10 @@ import random
 import pickle
 import argparse
 import numpy as np
-from inaturalist_train_forward import data_info
+from _Places365Generation.places365_train_forward import data_info
+
+N_CLASSES = 365
+POWER_EXPONENT = 0.9
 
 
 def seed_torch(seed=25):
@@ -19,13 +22,42 @@ def seed_torch(seed=25):
     torch.backends.cudnn.deterministic = True
 
 
-def sampling_train_set(
-    size_of_train_set, cat_inst: dict, cat_ratio: dict, used_inst: list
+def generate_long_tail_distribution(n_classes=N_CLASSES, power_exponent=POWER_EXPONENT):
+    probabilities = np.arange(1, n_classes + 1) ** (-power_exponent)
+    probabilities /= np.sum(probabilities)
+    return probabilities
+
+def generate_long_tail_cat_probabilities(
+    cat_inst: dict, n_classes=N_CLASSES, power_exponent=POWER_EXPONENT
 ):
+    probabilities = generate_long_tail_distribution(n_classes, power_exponent)
+    cat_num = {cat: len(inst) for cat, inst in cat_inst.items()}
+    sorted_cat = sorted(cat_num.items(), key=lambda x: x[1], reverse=True)
+    cat_probabilities = dict()
+    for i, probability in enumerate(probabilities):
+        cat_probabilities[sorted_cat[i][0]] = probability
+    return cat_probabilities
+
+def generate_long_tail_cat_sample_num(
+    total_count, cat_inst: dict, n_classes=N_CLASSES, power_exponent=POWER_EXPONENT
+):
+    probabilities = generate_long_tail_distribution(n_classes, power_exponent)
+    cat_num = {cat: len(inst) for cat, inst in cat_inst.items()}
+    cat_num_list = probabilities * total_count
+    sorted_cat = sorted(cat_num.items(), key=lambda x: x[1], reverse=True)
+    cat_sample_num = dict()
+    for i, num in enumerate(cat_num_list):
+        cat_sample_num[sorted_cat[i][0]] = num
+    return cat_sample_num
+
+
+# long-tail
+def sampling_train_set(size_of_train_set, cat_inst: dict, used_inst: list):
     all_samples = list()
+    cat_sample_num = generate_long_tail_cat_sample_num(size_of_train_set, cat_inst)
     for cat, insts in cat_inst.items():
         insts = np.array(set(insts) - set(used_inst))
-        num_of_sample = math.ceil(cat_ratio[cat] * size_of_train_set)
+        num_of_sample = cat_sample_num[cat]
         if num_of_sample > len(insts):
             print(
                 f"Warning: Request {num_of_sample}, only {len(insts)} for category-{cat}!"
@@ -37,29 +69,12 @@ def sampling_train_set(
     return all_samples
 
 
-def sampling_val_set(size_of_val_set, cat_inst: dict, cat_ratio: dict, used_inst: list):
+# class-wise balance
+def sampling_val_set(size_of_val_set, cat_inst: dict, used_inst: list):
     all_samples = list()
     for cat, insts in cat_inst.items():
         insts = np.array(set(insts) - set(used_inst))
-        num_of_sample = math.ceil(cat_ratio[cat] * size_of_val_set)
-        if num_of_sample > len(insts):
-            print(
-                f"Warning: Request {num_of_sample}, only {len(insts)} for category-{cat}!"
-            )
-            num_of_sample = len(insts)
-        samples = np.random.permutation(insts)[:num_of_sample].tolist()
-        all_samples += samples
-        used_inst += samples
-    return all_samples
-
-
-def sampling_test_set(
-    size_of_test_set, cat_inst: dict, cat_ratio: dict, used_inst: list
-):
-    all_samples = list()
-    for cat, insts in cat_inst.items():
-        insts = np.array(set(insts) - set(used_inst))
-        num_of_sample = math.ceil(cat_ratio[cat] * size_of_test_set)
+        num_of_sample = int(size_of_val_set / len(cat_inst))
         if num_of_sample > len(insts):
             print(
                 f"Warning: Request {num_of_sample}, only {len(insts)} for category-{cat}!"
@@ -70,6 +85,24 @@ def sampling_test_set(
     return all_samples
 
 
+# long-tail
+def sampling_test_set(size_of_test_set, cat_inst: dict, used_inst: list):
+    all_samples = list()
+    cat_sample_num = generate_long_tail_cat_sample_num(size_of_test_set, cat_inst)
+    for cat, insts in cat_inst.items():
+        insts = np.array(set(insts) - set(used_inst))
+        num_of_sample = cat_sample_num[cat]
+        if num_of_sample > len(insts):
+            print(
+                f"Warning: Request {num_of_sample}, only {len(insts)} for category-{cat}!"
+            )
+            num_of_sample = len(insts)
+        samples = np.random.permutation(insts)[:num_of_sample].tolist()
+        all_samples += samples
+    return all_samples
+
+
+# class-wise balance
 def sampling_test_set_cbl(size_of_test_set_cbl, cat_inst: dict, used_inst: list):
     all_samples = list()
     for cat, insts in cat_inst.items():
@@ -85,6 +118,7 @@ def sampling_test_set_cbl(size_of_test_set_cbl, cat_inst: dict, used_inst: list)
     return all_samples
 
 
+# class-wise and attr-wise balance
 def sampling_test_set_gbl(
     size_of_test_set_cbl, cat_inst: dict, cat_attr_inst: dict, used_inst: list
 ):
@@ -132,21 +166,21 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--data_path",
-        default="~/Datasets/inaturalist/",
+        default="~/Datasets/places365/images/",
         type=str,
-        help="indicate the root path of train data for iNaturalist.",
+        help="indicate the root path of train data for Places365.",
     )
     parser.add_argument(
         "--anno_path",
-        default="~/Datasets/inaturalist/train2018.json",
+        default="~/Datasets/places365/anno/",
         type=str,
-        help="indicate the anno path of train data for iNaturalist.",
+        help="indicate the anno path of train data for Places365.",
     )
     parser.add_argument(
         "--out_path",
-        default="./inaturalist_anno.pkl",
+        default="./places365_anno.pkl",
         type=str,
-        help="indicate the output path of anno data for iNaturalist-LT.",
+        help="indicate the output path of anno data for Places365-LT.",
     )
     parser.add_argument(
         "--seed",
@@ -161,23 +195,24 @@ if __name__ == "__main__":
     print("=====> Using fixed random seed: " + str(args.seed))
     seed_torch(str(args.seed))
 
-    size_of_train_set = 170000
+    size_of_train_set = 150000
     size_of_val_set = 30000
-    size_of_test_set = 50000
-    size_of_test_set_cbl = 30000
-    size_of_test_set_gbl = 20000
+    size_of_test_set = 40000
+    size_of_test_set_cbl = 100000
+    size_of_test_set_gbl = 60000
 
-    cat_attr_inst, cat_inst, cat_ratio, inst_cat, inst_path = data_info(
+    cat_attr_inst, cat_inst, inst_cat, inst_path = data_info(
         args.data_path, args.anno_path
     )
     used_inst = list()
-    train_set = sampling_train_set(size_of_train_set, cat_inst, cat_ratio, used_inst)
-    val_set = sampling_val_set(size_of_val_set, cat_inst, cat_ratio, used_inst)
-    test_set = sampling_test_set(size_of_test_set, cat_inst, cat_ratio, used_inst)
+    train_set = sampling_train_set(size_of_train_set, cat_inst, used_inst)
+    val_set = sampling_val_set(size_of_val_set, cat_inst, used_inst)
+    test_set = sampling_test_set(size_of_test_set, cat_inst, used_inst)
     test_set_cbl = sampling_test_set_cbl(size_of_test_set_cbl, cat_inst, used_inst)
     test_set_gbl = sampling_test_set_gbl(
         size_of_test_set_gbl, cat_inst, cat_attr_inst, used_inst
     )
+    cat_ratio = generate_long_tail_cat_probabilities(cat_inst)
     outputs = {
         "train_set": train_set,
         "val_set": val_set,

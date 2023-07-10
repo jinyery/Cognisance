@@ -13,7 +13,7 @@ from PIL import Image
 from randaugment import RandAugment
 
 
-class ImageNet_LT(data.Dataset):
+class Places365_LT(data.Dataset):
     def __init__(
         self,
         phase,
@@ -26,7 +26,7 @@ class ImageNet_LT(data.Dataset):
         output_path,
         logger,
     ):
-        super(ImageNet_LT, self).__init__()
+        super(Places365_LT, self).__init__()
         valid_phase = ["train", "val", "test"]
         assert phase in valid_phase
         if phase == "train":
@@ -55,6 +55,7 @@ class ImageNet_LT(data.Dataset):
         self.phase = phase
         self.rand_aug = rand_aug
         self.data_path = data_path
+        self.transform = self.get_data_transform(phase, rgb_mean, rgb_std)
 
         # load annotation
         with open(anno_path, "rb") as file:

@@ -19,11 +19,11 @@ from functools import reduce
 NUM_EPOCH = 100
 BATCH_SIZE = 100
 PRINT_STEPS = 10
-NUM_CLASSES = 8142
+NUM_CLASSES = 365
 OUTPUTS_DIR = os.path.join(os.path.dirname(__file__), "checkpoints")
 
 
-class iNaturalistTrainSet(Dataset):
+class Places365TrainSet(Dataset):
     def __init__(self, data_path, anno_path):
         if "~" in data_path:
             self.data_path = os.path.expanduser(data_path)
@@ -40,27 +40,31 @@ class iNaturalistTrainSet(Dataset):
                 transforms.RandomResizedCrop(224),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
-                transforms.Normalize([0.466, 0.471, 0.380], [0.195, 0.194, 0.192]),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                ),
             ]
         )
         self.init_data()
 
     def init_data(self):
         print("Initializing dataset...")
+        cat_path = list()
+
+        i = 0  # inst index
+        j = 0  # cat index
         with open(self.anno_path, "r") as file:
-            anno_data = json.load(file)
-
-        for i in range(len(anno_data["images"])):
-            assert anno_data["images"][i]["id"] == anno_data["annotations"][i]["id"]
-            category = anno_data["annotations"][i]["category_id"]
-            img_path = anno_data["images"][i]["file_name"]
-            if category not in self.cat_inst:
-                self.cat_inst[category] = list()
-
-            self.insts.append(i)
-            self.cat_inst[category].append(i)
-            self.inst_cat[i] = category
-            self.inst_path[i] = img_path
+            cat_path = file.readline().split(" ")[0]
+            cat_files = os.listdir(os.path.join(self.data_path, cat_path))
+            self.cat_inst[j] = list()
+            for cat_file in cat_files:
+                img_path = os.path.join(self.data_path, cat_path, cat_file)
+                self.insts.append(i)
+                self.cat_inst[j].append(i)
+                self.inst_cat[i] = j
+                self.inst_path[i] = img_path
+                i += 1
+            j += 1
 
     def __len__(self):
         return len(self.insts)
@@ -76,9 +80,6 @@ class iNaturalistTrainSet(Dataset):
 
         return sample, catgory
 
-    def cat_ratio(self):
-        return {key: len(value) / len(self) for key, value in self.cat_inst.items()}
-
     def get_loader(
         self,
         num_workers=8,
@@ -93,11 +94,11 @@ class iNaturalistTrainSet(Dataset):
         )
 
 
-class iNaturalistExtractSet(DataLoader):
+class Places365ExtractSet(DataLoader):
     def __init__(
         self,
         category,
-        all_set: iNaturalistTrainSet,
+        all_set: Places365TrainSet,
     ):
         self.category = category
         self.data_path = all_set.data_path
@@ -110,7 +111,9 @@ class iNaturalistExtractSet(DataLoader):
                 transforms.Resize(256),
                 transforms.CenterCrop(224),
                 transforms.ToTensor(),
-                transforms.Normalize([0.466, 0.471, 0.380], [0.195, 0.194, 0.192]),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                ),
             ]
         )
 
@@ -236,7 +239,7 @@ def train_model(train_set, num_epoch=NUM_EPOCH):
             }
             if not os.path.exists(OUTPUTS_DIR):
                 os.makedirs(OUTPUTS_DIR)
-            torch.save(output, os.join(OUTPUTS_DIR, f"epoch-{epoch}.pth"))
+            torch.save(output, os.path.join(OUTPUTS_DIR, f"epoch-{epoch}.pth"))
 
         # update scheduler
         scheduler.step()
@@ -245,7 +248,7 @@ def train_model(train_set, num_epoch=NUM_EPOCH):
 
 def data_info(data_path, anno_path, model_path=None):
     cat_attr_inst = dict()
-    train_set = iNaturalistTrainSet(data_path, anno_path)
+    train_set = Places365TrainSet(data_path, anno_path)
     if model_path is None:
         model, _ = train_model(train_set)
     else:
@@ -255,7 +258,7 @@ def data_info(data_path, anno_path, model_path=None):
     with torch.no_grad():
         for cat in train_set.cat_inst.keys():
             cat_attr_inst[cat] = dict()
-            sub_set = iNaturalistExtractSet(category=cat, all_set=train_set)
+            sub_set = Places365ExtractSet(category=cat, all_set=train_set)
             all_feat = []
             for inputs, _ in sub_set.get_loader():
                 inputs = inputs.cuda()
@@ -272,12 +275,11 @@ def data_info(data_path, anno_path, model_path=None):
     return (
         cat_attr_inst,
         train_set.cat_inst,
-        train_set.cat_ratio(),
         train_set.inst_cat,
         train_set.inst_path,
     )
 
 
 x, y, z, l = data_info(
-    "~/Datasets/inaturalist", "~/Datasets/inaturalist/train2018.json"
+    "~/Datasets/places365/images", "~/Datasets/places365/anno/train2018.json"
 )
