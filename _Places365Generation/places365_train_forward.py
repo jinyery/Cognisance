@@ -15,10 +15,11 @@ from models import ResNet, ClassifierFC
 import torch.optim as optim
 from operator import add
 from functools import reduce
+from tqdm import tqdm
 
 NUM_EPOCH = 100
-BATCH_SIZE = 100
-PRINT_STEPS = 10
+BATCH_SIZE = 128
+PRINT_STEPS = 100
 NUM_CLASSES = 365
 OUTPUTS_DIR = os.path.join(os.path.dirname(__file__), "checkpoints")
 
@@ -49,12 +50,13 @@ class Places365TrainSet(Dataset):
 
     def init_data(self):
         print("Initializing dataset...")
-        cat_path = list()
+        with open(self.anno_path, "r") as file:
+            lines = file.readlines()
 
         i = 0  # inst index
         j = 0  # cat index
-        with open(self.anno_path, "r") as file:
-            cat_path = file.readline().split(" ")[0]
+        for line in lines:
+            cat_path = line.split(" ")[0][1:]
             cat_files = os.listdir(os.path.join(self.data_path, cat_path))
             self.cat_inst[j] = list()
             for cat_file in cat_files:
@@ -169,10 +171,13 @@ def load_module(module, module_state):
 
 
 def load_model(path):
+    print("Loading checkpoints...")
     checkpoint = torch.load(path, map_location="cpu")
     model_state = checkpoint["model"]
     classifier_state = checkpoint["classifier"]
 
+    model = ResNet.create_model(m_type="resnext50")
+    classifier = ClassifierFC.create_model(feat_dim=2048, num_classes=NUM_CLASSES)
     model = load_module(model, model_state)
     classifier = load_module(classifier, classifier_state)
     model = nn.DataParallel(model).cuda()
@@ -249,6 +254,7 @@ def train_model(train_set, num_epoch=NUM_EPOCH):
 def data_info(data_path, anno_path, model_path=None):
     cat_attr_inst = dict()
     train_set = Places365TrainSet(data_path, anno_path)
+    print("model_path:", model_path)
     if model_path is None:
         model, _ = train_model(train_set)
     else:
@@ -256,7 +262,8 @@ def data_info(data_path, anno_path, model_path=None):
 
     model.eval()
     with torch.no_grad():
-        for cat in train_set.cat_inst.keys():
+        processing_bar = tqdm(train_set.cat_inst.keys())
+        for cat in processing_bar:
             cat_attr_inst[cat] = dict()
             sub_set = Places365ExtractSet(category=cat, all_set=train_set)
             all_feat = []
@@ -265,6 +272,9 @@ def data_info(data_path, anno_path, model_path=None):
                 features = model(inputs)
                 all_feat.append(features.detach().clone().cpu())
             all_feat = torch.cat(all_feat, dim=0).tolist()
+            processing_bar.set_description(
+                f"Building CoarseLeadingForest (label:{cat}, label_size:{len(all_feat)})"
+            )
 
             clf = CoarseLeadingForest(samples=all_feat)
             paths, _ = clf.generate_path(detailed=True)
@@ -280,6 +290,6 @@ def data_info(data_path, anno_path, model_path=None):
     )
 
 
-x, y, z, l = data_info(
-    "~/Datasets/places365/images", "~/Datasets/places365/anno/train2018.json"
-)
+# x, y, z, l = data_info(
+#     "~/Datasets/places365/data_256", "~/Datasets/places365/categories_places365.txt"
+# )
