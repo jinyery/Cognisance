@@ -235,7 +235,7 @@ if __name__ == "__main__":
     val_set = sampling_val_set(SIZE_OF_VAL_SET, cat_inst, used_inst)
     test_set = sampling_test_set(SIZE_OF_TEST_SET, cat_inst, used_inst)
     test_set_cbl = sampling_test_set_cbl(SIZE_OF_TEST_SET_CBL, cat_inst, used_inst)
-    test_set_gbl = sampling_test_set_gbl(
+    test_set_gbl, cat_attr_vec = sampling_test_set_gbl(
         SIZE_OF_TEST_SET_GBL, cat_inst, cat_attr_inst, used_inst
     )
     cat_ratio = generate_long_tail_cat_probabilities(cat_inst)
@@ -248,6 +248,7 @@ if __name__ == "__main__":
         "cat_ratio": cat_ratio,
         "inst_cat": inst_cat,
         "inst_path": inst_path,
+        "cat_attr_vec": cat_attr_vec,
     }
 
     print("Saving anno file...")

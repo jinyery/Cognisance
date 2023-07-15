@@ -18,6 +18,7 @@ from functools import reduce
 from tqdm import tqdm
 
 NUM_EPOCH = 100
+SAVE_EPOCH = 10
 BATCH_SIZE = 128
 PRINT_STEPS = 100
 NUM_CLASSES = 365
@@ -198,13 +199,13 @@ def train_model(train_set, num_epoch=NUM_EPOCH):
         if not val.requires_grad:
             continue
         all_params += [
-            {"params": [val], "lr": 0.1, "weight_decay": 0.0005, "momentum": 0.9}
+            {"params": [val], "lr": 0.05, "weight_decay": 0.0005, "momentum": 0.9}
         ]
     for _, val in classifier.named_parameters():
         if not val.requires_grad:
             continue
         all_params += [
-            {"params": [val], "lr": 0.1, "weight_decay": 0.0005, "momentum": 0.9}
+            {"params": [val], "lr": 0.05, "weight_decay": 0.0005, "momentum": 0.9}
         ]
     optimizer = optim.SGD(all_params)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, num_epoch, eta_min=0.0)
@@ -236,7 +237,7 @@ def train_model(train_set, num_epoch=NUM_EPOCH):
                 )
 
         # checkpoint
-        if epoch % 10 == 0 or epoch == num_epoch - 1:
+        if epoch % SAVE_EPOCH == 0 or epoch == num_epoch - 1:
             output = {
                 "model": model.state_dict(),
                 "classifier": classifier.state_dict(),
