@@ -131,7 +131,7 @@ class train_multi_center_dual:
     def run(self):
         # Start Training
         self.logger.info(
-            "=====> Start Center Loss with Dual Env Training... (mix_up:{self.mix_up}, rand_aug:{self.rand_aug})"
+            f"=====> Start Center Loss with Dual Env Training... (mix_up:{self.mix_up}, rand_aug:{self.rand_aug})"
         )
 
         # logit adjustment
