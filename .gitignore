@@ -8,6 +8,7 @@ checkpoints*
 __pycache__
 coco_glt
 .vscode
+/test/
 
 
 !cocottributes_py3.jbl
