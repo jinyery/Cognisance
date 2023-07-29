@@ -40,7 +40,7 @@ def train_loader(config):
         or config["training_opt"]["type"] == "multi_center_dual_plain"
         or config["training_opt"]["type"] == "multi_center_dual_plain_mix"
         or config["training_opt"]["type"] == "multi_center_dual_plain_false"
-        or config["training_opt"]["type"] == "multi_center_dual_mix_up"
+        or config["training_opt"]["type"] == "multi_center_dual_mixup"
         or config["training_opt"]["type"] == "multi_center_dual_randaug"
         or config["training_opt"]["type"] == "multi_center_dual_blsoftmax"
         or config["training_opt"]["type"] == "multi_center_dual_logit_adj"

@@ -135,7 +135,7 @@ class train_multi_center_dual_ride:
     def run(self):
         # Start Training
         self.logger.info(
-            "=====> Start Center Loss with Dual Env and RIDE Backbone Training... (mix_up:{self.mix_up}, rand_aug:{self.rand_aug})"
+            f"=====> Start Center Loss with Dual Env and RIDE Backbone Training... (mix_up:{self.mix_up}, rand_aug:{self.rand_aug})"
         )
 
         # logit adjustment
@@ -266,7 +266,7 @@ class train_multi_center_dual_ride:
                 all_ind.append(indexs.detach().clone().cpu())
                 all_lab.append(labels.detach().clone().cpu())
                 all_prb.append(gt_score.detach().clone().cpu())
-                all_feat.append(features.detach().clone().cpu())
+                all_feat.append(features.view(features.shape[0], -1).detach().clone().cpu())
 
                 # log information
                 iter_info_print.update(

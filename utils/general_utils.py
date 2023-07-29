@@ -25,7 +25,11 @@ def count_dataset(train_loader):
 def compute_adjustment(train_loader, tro=1.0):
     """compute the base probabilities"""
     label_freq = {}
-    for key in train_loader.dataset.labels:
+    if type(train_loader) is list:
+        labels = train_loader[0].dataset.labels
+    else:
+        labels = train_loader.dataset.labels
+    for key in labels:
         label_freq[key] = label_freq.get(key, 0) + 1
     label_freq = dict(sorted(label_freq.items()))
     label_freq_array = np.array(list(label_freq.values()))

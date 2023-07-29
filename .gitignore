@@ -9,6 +9,8 @@ __pycache__
 coco_glt
 .vscode
 /test/
+*.tar
+*.tar.gz
 
 
 !cocottributes_py3.jbl

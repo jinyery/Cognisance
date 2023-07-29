@@ -1,5 +1,6 @@
 import os
 import json
+import pickle
 import torch.utils.data as data
 import torch
 import torch.optim as optim
@@ -282,6 +283,11 @@ def data_info(data_path, anno_path, model_path=None):
             paths_flatten = [reduce(add, path) for path in paths]
             for i, path_flatten in enumerate(paths_flatten):
                 cat_attr_inst[cat][i] = sub_set.order_inst(path_flatten)
+            clf_path = os.path.join(OUTPUTS_DIR, "clf")
+            if not os.path.exists(clf_path):
+                os.makedirs(clf_path)
+            with open(os.path.join(clf_path, f"clf-{cat}.pkl"), "wb") as file:
+                pickle.dump(clf, file)
 
     return (
         cat_attr_inst,
