@@ -86,6 +86,7 @@ class Places365_LT(data.Dataset):
         label = self.inst_cat[inst_id]
         rarity = self.frequencies[inst_id]
 
+        path = path[path.index("data_256"):]
         with open(os.path.join(self.data_path, path), "rb") as f:
             sample = Image.open(f).convert("RGB")
 
@@ -139,7 +140,7 @@ class Places365_LT(data.Dataset):
                 )
                 trans = transforms.Compose(
                     [
-                        transforms.RandomResizedCrop(224),
+                        transforms.RandomResizedCrop(112),
                         transforms.RandomHorizontalFlip(),
                         RandAugment(),
                         transforms.ToTensor(),
@@ -147,7 +148,7 @@ class Places365_LT(data.Dataset):
                     ]
                 )
                 transform_info["operations"] = [
-                    "RandomResizedCrop(224)",
+                    "RandomResizedCrop(112)",
                     "RandomHorizontalFlip()",
                     "RandAugment()",
                     "ToTensor()",
@@ -159,14 +160,14 @@ class Places365_LT(data.Dataset):
                 )
                 trans = transforms.Compose(
                     [
-                        transforms.RandomResizedCrop(224),
+                        transforms.RandomResizedCrop(112),
                         transforms.RandomHorizontalFlip(),
                         transforms.ToTensor(),
                         transforms.Normalize(rgb_mean, rgb_std),
                     ]
                 )
                 transform_info["operations"] = [
-                    "RandomResizedCrop(224)",
+                    "RandomResizedCrop(112)",
                     "RandomHorizontalFlip()",
                     "ToTensor()",
                     "Normalize(rgb_mean, rgb_std)",
@@ -174,15 +175,15 @@ class Places365_LT(data.Dataset):
         else:
             trans = transforms.Compose(
                 [
-                    transforms.Resize(256),
-                    transforms.CenterCrop(224),
+                    transforms.Resize(128),
+                    transforms.CenterCrop(112),
                     transforms.ToTensor(),
                     transforms.Normalize(rgb_mean, rgb_std),
                 ]
             )
             transform_info["operations"] = [
-                "Resize(256)",
-                "CenterCrop(224)",
+                "Resize(128)",
+                "CenterCrop(112)",
                 "ToTensor()",
                 "Normalize(rgb_mean, rgb_std)",
             ]

@@ -1,9 +1,9 @@
 output_dir: null
 
 dataset:
-  name: 'iNaturalist-LT'
-  data_path: ~/Datasets/inaturalist/
-  anno_path: ~/Datasets/inaturalist/inaturalist_anno.pkl
+  name: 'Places365-LT'
+  data_path: ~/Datasets/places365/
+  anno_path: ~/Datasets/places365/anno_file.pkl
   # lt      :  test distribution is long-tailed in both cateogies and atttributes
   # bl      :  the category is balanced
   # bbl     :  both category and attribute are balanced
@@ -30,31 +30,31 @@ classifiers:
   type: FC
   FC:
     def_file: ./models/ClassifierFC.py
-    params: {feat_dim: 2048, num_classes: 8142}
+    params: {feat_dim: 2048, num_classes: 365}
   RIDE:
     def_file: ./models/ClassifierRIDE.py
-    params: {feat_dim: 1536, num_classes: 8142, num_experts: 3, use_norm: True}
+    params: {feat_dim: 1536, num_classes: 365, num_experts: 3, use_norm: True}
   BBN:
     def_file: ./models/ClassifierFC.py
-    params: {feat_dim: 4096, num_classes: 8142}
+    params: {feat_dim: 4096, num_classes: 365}
   COS:
     def_file: ./models/ClassifierCOS.py 
-    params: {feat_dim: 2048, num_classes: 8142, num_head: 1, tau: 30.0}
+    params: {feat_dim: 2048, num_classes: 365, num_head: 1, tau: 30.0}
   LDAM:
     def_file: ./models/ClassifierLDAM.py 
-    params: {feat_dim: 2048, num_classes: 8142}
+    params: {feat_dim: 2048, num_classes: 365}
   TDE:
     def_file: ./models/ClassifierTDE.py 
-    params: {feat_dim: 2048, num_classes: 8142, num_head: 2, tau: 16.0, alpha: 2.0, gamma: 0.03125}
+    params: {feat_dim: 2048, num_classes: 365, num_head: 2, tau: 16.0, alpha: 2.0, gamma: 0.03125}
   LA:
     def_file: ./models/ClassifierLA.py
-    params: {feat_dim: 2048, num_classes: 8142, posthoc: True, loss: False}
+    params: {feat_dim: 2048, num_classes: 365, posthoc: True, loss: False}
   LWS:
     def_file: ./models/ClassifierLWS.py
-    params: {feat_dim: 2048, num_classes: 8142}
+    params: {feat_dim: 2048, num_classes: 365}
   MultiHead:
     def_file: ./models/ClassifierMultiHead.py
-    params: {feat_dim: 2048, num_classes: 8142}
+    params: {feat_dim: 2048, num_classes: 365}
 
 training_opt:
   type: baseline  # baseline / mixup / two_stage2

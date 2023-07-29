@@ -43,7 +43,7 @@ classifiers:
   LDAM:
     def_file: ./models/ClassifierLDAM.py 
     params: {feat_dim: 2048, num_classes: 29}
-  TDE: 
+  TDE:
     def_file: ./models/ClassifierTDE.py 
     params: {feat_dim: 2048, num_classes: 29, num_head: 2, tau: 16.0, alpha: 1.0, gamma: 0.03125}
   LA:
