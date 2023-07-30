@@ -65,6 +65,7 @@ class Places365_LT(data.Dataset):
         self.inst_cat = self.annotations["inst_cat"]
         self.inst_path = self.annotations["inst_path"]
         self.frequencies = self.load_frequencies()
+        self.labels = self.load_labels()
 
         # save dataset info
         logger.info("=====> Save dataset info")
@@ -98,6 +99,15 @@ class Places365_LT(data.Dataset):
             return sample, label, rarity, -1, index
         else:
             return sample, label, rarity, index
+
+    def load_labels(self):
+        labels = list()
+        for idx, inst in enumerate(self.data):
+            inst_id = self.data[idx]
+            label = self.inst_cat[inst_id]
+            labels.append(label)
+        return labels
+        
 
     #######################################
     #  Load image info
