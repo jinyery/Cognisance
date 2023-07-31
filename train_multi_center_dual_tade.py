@@ -4,20 +4,15 @@
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
-import torch.optim.lr_scheduler as lr_scheduler
-import torch.nn.functional as F
-
 import utils.general_utils as utils
+
 from data.dataloader import get_loader
 from utils.checkpoint_utils import Checkpoint
 from utils.training_utils import *
 from utils.test_loader import test_loader
+from utils.clusting_utils import CoarseLeadingForest
 
 from tqdm import tqdm
-from operator import add
-from functools import reduce
-from utils.clusting_utils import CoarseLeadingForest
 
 
 class train_multi_center_dual_tade:
@@ -207,9 +202,9 @@ class train_multi_center_dual_tade:
                     ce_losses = []
                     for logit in all_logits:
                         if self.mix_up:
-                            ce_losses.append(self.mixup_criterion(
-                            logit, labels_a, labels_b, lam
-                        ))
+                            ce_losses.append(
+                                self.mixup_criterion(logit, labels_a, labels_b, lam)
+                            )
                         else:
                             ce_losses.append(self.loss_fc(logit, labels))
                     loss_ce = sum(ce_losses)
@@ -263,7 +258,9 @@ class train_multi_center_dual_tade:
                 all_ind.append(indexs.detach().clone().cpu())
                 all_lab.append(labels.detach().clone().cpu())
                 all_prb.append(gt_score.detach().clone().cpu())
-                all_feat.append(features.view(features.shape[0], -1).detach().clone().cpu())
+                all_feat.append(
+                    features.view(features.shape[0], -1).detach().clone().cpu()
+                )
 
                 # log information
                 iter_info_print.update(
@@ -383,31 +380,29 @@ class train_multi_center_dual_tade:
 
             cat_size = len(cat_items)
             if cat_size < 5:
-                for ind in list(cat_items.keys()):
-                    clf_weight[ind] = 1.0 / max(cat_size, 1.0)
+                for i in list(cat_items.keys()):
+                    clf_weight[i] = 1.0 / max(cat_size, 1.0)
                 continue
+
             processing_bar.set_description(
                 f"Building CoarseLeadingForest (label:{cat}, label_size:{cat_size})"
             )
-
             clf = CoarseLeadingForest(list(cat_items.values()), metric=self.metric)
-            paths, repetitions = clf.generate_path(detailed=True)
             self.cat_clf[cat] = clf
 
-            weights = torch.ones(len(ind))
+            paths, repetitions = clf.generate_path(detailed=True)
             repetitions = torch.Tensor(repetitions)
-            weights *= repetitions
-            weights /= len(paths)
-            paths_flatten = [reduce(add, path) for path in paths]
-            for i, path in enumerate(paths):
-                # Filter out samples that may be noise.
-                if len(paths_flatten[i]) == 1:
-                    tmp = ind[paths_flatten[i]]
-                    self.noise_ind.extend(tmp.tolist())
+            weights = torch.zeros(len(ind))
 
-                weights[paths_flatten[i]] /= len(path)
-                for nodes in path:
-                    weights[nodes] /= len(nodes)
+            path_weight = 1 / len(paths)
+            for path in paths:
+                coarse_node_weight = path_weight / len(path)
+                for node in path:
+                    small_node_weight = coarse_node_weight / len(node)
+                    weights[node] += small_node_weight
+                    if len(path) == 1 and len(node) == 1:
+                        tmp = ind[node]
+                        self.noise_ind.extend(tmp.tolist())
             weights /= repetitions
 
             if not self.plain:
