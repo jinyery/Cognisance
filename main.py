@@ -3,8 +3,6 @@
 ######################################
 
 import os
-
-os.environ["TMPDIR"] = get_tmp_path()
 import json
 import yaml
 import argparse
@@ -18,6 +16,7 @@ from data.dataloader import get_loader
 from utils.checkpoint_utils import Checkpoint
 from utils.training_utils import *
 
+os.environ["TMPDIR"] = get_tmp_path()
 
 from utils.train_loader import train_loader
 from utils.test_loader import test_loader
