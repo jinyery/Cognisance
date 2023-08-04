@@ -1,6 +1,6 @@
-import uuid
 import numpy as np
 import os.path as path
+from tempfile import mkdtemp
 from sklearn.metrics import pairwise_distances as pair_dist
 
 CUR_DIR = path.abspath(path.dirname(__file__))
@@ -88,7 +88,7 @@ class CoarseLeadingForest:
         if len(samples) <= self.max_sample_size:
             dist = pair_dist(samples, metric=self.metric).astype(np.float32)
         else:
-            tmp_file = path.join(CUR_DIR, "clf_dist_" + uuid.uuid4().hex + ".dat")
+            tmp_file = path.join(mkdtemp(), "clf_dist.dat")
             dist = np.memmap(
                 tmp_file, dtype="float32", mode="w+", shape=(len(samples), len(samples))
             )
