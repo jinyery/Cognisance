@@ -5,10 +5,10 @@ import random
 import pickle
 import argparse
 import numpy as np
-from places365_train_forward import data_info
+from places_train_forward import data_info
 
-N_CLASSES = 365
-POWER_EXPONENT = 0.6
+N_CLASSES = 344
+POWER_EXPONENT = 0.9
 SIZE_OF_TRAIN_SET = 100000
 SIZE_OF_VAL_SET = 10000
 SIZE_OF_TEST_SET = 30000
@@ -186,19 +186,19 @@ if __name__ == "__main__":
         "--data_path",
         default="~/Datasets/places365/data_256",
         type=str,
-        help="indicate the root path of train data for Places365-GLT.",
+        help="indicate the root path of train data for Places-GLT.",
     )
     parser.add_argument(
         "--anno_path",
-        default="~/Datasets/places365/categories_places365.txt",
+        default="~/Datasets/places365/categories_places365_merge.txt",
         type=str,
-        help="indicate the anno path of train data for Places365-GLT.",
+        help="indicate the anno path of train data for Places-GLT.",
     )
     parser.add_argument(
         "--out_dir",
         default="./checkpoints/",
         type=str,
-        help="indicate the output dir of anno_file/model_file for Places365-GLT.",
+        help="indicate the output dir of anno_file/model_file for Places-GLT.",
     )
     parser.add_argument(
         "--seed",
@@ -210,7 +210,7 @@ if __name__ == "__main__":
         "--model_path",
         default=None,
         type=str,
-        help="indicate the checkpoints path of model for Places365-GLT.",
+        help="indicate the checkpoints path of model for Places-GLT.",
     )
     args = parser.parse_args()
 

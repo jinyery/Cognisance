@@ -7,7 +7,7 @@ func() {
     echo "NAME, the Name of the task.(default to '')"
     echo "SEED, the random number seed.(default to 25)"
     echo "RANGE, the range of task.(all/mine/plain/others/plus_others/single)"
-    echo "DATASET, the dataset of task.(COCO_LT/ImageNet_LT/Places365_LT, default to Places365_LT)"
+    echo "DATASET, the dataset of task.(COCO_LT/ImageNet_LT/Places_GLT, default to Places_GLT)"
     echo "MODE, it's required if the RANGE is 'single'.(default to multi_center_dual)"
     echo "DENOSING, Adding this option will remove noise samples through unsupervised learning."
     exit 1
@@ -16,7 +16,7 @@ func() {
 NAME=""
 SEED=25
 RANGE="all"
-DATASET="Places365_LT"
+DATASET="Places_GLT"
 MODE="multi_center_dual"
 DENOSING=""
 

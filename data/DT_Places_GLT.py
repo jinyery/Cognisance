@@ -13,7 +13,7 @@ from PIL import Image
 from randaugment import RandAugment
 
 
-class Places365_LT(data.Dataset):
+class Places_GLT(data.Dataset):
     def __init__(
         self,
         phase,
@@ -26,7 +26,7 @@ class Places365_LT(data.Dataset):
         output_path,
         logger,
     ):
-        super(Places365_LT, self).__init__()
+        super(Places_GLT, self).__init__()
         valid_phase = ["train", "val", "test"]
         assert phase in valid_phase
         if phase == "train":

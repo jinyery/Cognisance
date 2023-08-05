@@ -22,7 +22,7 @@ NUM_EPOCH = 100
 SAVE_EPOCH = 10
 BATCH_SIZE = 128
 PRINT_STEPS = 100
-NUM_CLASSES = 365
+NUM_CLASSES = 344
 OUTPUTS_DIR = os.path.join(os.path.dirname(__file__), "checkpoints")
 
 
@@ -57,7 +57,12 @@ class Places365TrainSet(Dataset):
 
         i = 0  # inst index
         j = 0  # cat index
+        last_cat_dummy = ""
         for line in lines:
+            cat_dummy = line.split(" ")[1]
+            if last_cat_dummy == cat_dummy:
+                j -= 1
+            last_cat_dummy = cat_dummy
             cat_path = line.split(" ")[0][1:]
             cat_files = os.listdir(os.path.join(self.data_path, cat_path))
             self.cat_inst[j] = list()
@@ -298,5 +303,5 @@ def data_info(data_path, anno_path, model_path=None):
 
 
 # x, y, z, l = data_info(
-#     "~/Datasets/places365/data_256", "~/Datasets/places365/categories_places365.txt"
+#     "~/Datasets/places365/data_256", "~/Datasets/places365/categories_places365_merge.txt"
 # )
