@@ -7,6 +7,8 @@ import argparse
 import numpy as np
 from places_train_forward import data_info
 
+os.environ["TMPDIR"] = os.path.expanduser(os.path.join("~" + tmp))
+
 N_CLASSES = 344
 POWER_EXPONENT = 0.9
 SIZE_OF_TRAIN_SET = 100000
@@ -174,7 +176,9 @@ def sampling_test_set_gbl(
             all_samples.append(min_inst)
             count += 1
         cat_attr_vec[cat] = list(attr_vec)
-        print(f"=====>cat_attr_vec_std:{np.std(attr_vec)}, len(cat_attr_vec):{len(attr_vec)}")
+        print(
+            f"=====>cat_attr_vec_std:{np.std(attr_vec)}, len(cat_attr_vec):{len(attr_vec)}"
+        )
     return all_samples, cat_attr_vec
 
 
