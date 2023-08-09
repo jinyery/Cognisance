@@ -7,7 +7,7 @@ import argparse
 import numpy as np
 from places_train_forward import data_info
 
-os.environ["TMPDIR"] = os.path.expanduser(os.path.join("~" + tmp))
+os.environ["TMPDIR"] = os.path.expanduser("~/tmp")
 
 N_CLASSES = 344
 POWER_EXPONENT = 0.9
