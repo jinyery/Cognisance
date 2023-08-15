@@ -102,21 +102,21 @@ class train_multi_center_dual:
         self.logger.info("Center Weight: {}".format(center_weight))
         return center_weight
 
-    def mixup_data(self, x, y, alpha=1.0):
+    def mixup_data(self, x, y, o_index, alpha=1.0):
         lam = np.random.beta(alpha, alpha) if alpha > 0 else 1
         batch_size = x.shape[0]
         index = torch.randperm(batch_size).to(x.device)
         mixed_x = lam * x + (1 - lam) * x[index]
         y_a, y_b = y, y[index]
-        return mixed_x, y_a, y_b, lam
+        return mixed_x, y_a, y_b, lam, o_index[index]
 
     def mixup_criterion(self, pred, y_a, y_b, lam):
         return lam * self.loss_fc(pred, y_a) + (1 - lam) * self.loss_fc(pred, y_b)
 
-    def mixup_center_criterion(self, feat, y_a, y_b, lam, indexs):
+    def mixup_center_criterion(self, feat, y_a, y_b, lam, indexs, after_indexs):
         return lam * self.loss_center(feat, y_a, self.get_label_center(y_a, indexs)) + (
             1 - lam
-        ) * self.loss_center(feat, y_b, self.get_label_center(y_b, indexs))
+        ) * self.loss_center(feat, y_b, self.get_label_center(y_b, after_indexs))
 
     def mixup_accuracy(self, pred, y_a, y_b, lam):
         correct = lam * (pred.max(1)[1] == y_a) + (1 - lam) * (pred.max(1)[1] == y_b)
@@ -179,7 +179,7 @@ class train_multi_center_dual:
                     )
 
                 if self.mix_up:
-                    inputs, labels_a, labels_b, lam = self.mixup_data(inputs, labels)
+                    inputs, labels_a, labels_b, lam, after_indexs = self.mixup_data(inputs, labels, indexs)
 
                 features = self.model(inputs)
                 predictions = self.classifier(features, add_inputs)
@@ -196,7 +196,7 @@ class train_multi_center_dual:
                 if self.mix_up:
                     loss_ct = (
                         self.mixup_center_criterion(
-                            features, labels_a, labels_b, lam, indexs
+                            features, labels_a, labels_b, lam, indexs, after_indexs
                         )
                         * center_weight
                     )
