@@ -65,7 +65,8 @@ class Places365TrainSet(Dataset):
             last_cat_dummy = cat_dummy
             cat_path = line.split(" ")[0][1:]
             cat_files = os.listdir(os.path.join(self.data_path, cat_path))
-            self.cat_inst[j] = list()
+            if j not in self.cat_inst[j]:
+                self.cat_inst[j] = list()
             for cat_file in cat_files:
                 img_path = os.path.join(self.data_path, cat_path, cat_file)
                 self.insts.append(i)
