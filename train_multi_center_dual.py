@@ -179,7 +179,9 @@ class train_multi_center_dual:
                     )
 
                 if self.mix_up:
-                    inputs, labels_a, labels_b, lam, after_indexs = self.mixup_data(inputs, labels, indexs)
+                    inputs, labels_a, labels_b, lam, after_indexs = self.mixup_data(
+                        inputs, labels, indexs
+                    )
 
                 features = self.model(inputs)
                 predictions = self.classifier(features, add_inputs)

@@ -102,24 +102,24 @@ class train_multi_center_dual_ride:
         self.logger.info("Center Weight: {}".format(center_weight))
         return center_weight
 
-    def mixup_data(self, x, y, alpha=1.0):
+    def mixup_data(self, x, y, o_index, alpha=1.0):
         lam = np.random.beta(alpha, alpha) if alpha > 0 else 1
         batch_size = x.shape[0]
         index = torch.randperm(batch_size).to(x.device)
         mixed_x = lam * x + (1 - lam) * x[index]
         y_a, y_b = y, y[index]
-        return mixed_x, y_a, y_b, lam
+        return mixed_x, y_a, y_b, lam, o_index[index]
 
     def mixup_criterion(self, pred, y_a, y_b, lam, extra_info):
         return lam * self.loss_fc(pred, y_a, extra_info) + (1 - lam) * self.loss_fc(
             pred, y_b, extra_info
         )
 
-    def mixup_center_criterion(self, feat, y_a, y_b, lam, indexs):
-        return lam * self.loss_center(feat.view(feat.shape[0], -1), y_a) + (
-            1 - lam
-        ) * self.loss_center(
-            feat.view(feat.shape[0], -1), y_b, self.get_label_center(y_b, indexs)
+    def mixup_center_criterion(self, feat, y_a, y_b, lam, indexs, after_indexs):
+        return lam * self.loss_center(
+            feat.view(feat.shape[0], -1), y_a, self.get_label_center(y_a, indexs)
+        ) + (1 - lam) * self.loss_center(
+            feat.view(feat.shape[0], -1), y_b, self.get_label_center(y_b, after_indexs)
         )
 
     def mixup_accuracy(self, pred, y_a, y_b, lam):
@@ -186,7 +186,9 @@ class train_multi_center_dual_ride:
                     )
 
                 if self.mix_up:
-                    inputs, labels_a, labels_b, lam = self.mixup_data(inputs, labels)
+                    inputs, labels_a, labels_b, lam, after_indexs = self.mixup_data(
+                        inputs, labels, indexs
+                    )
 
                 features = self.model(inputs)
                 predictions, all_logits = self.classifier(features, add_inputs)
@@ -202,26 +204,14 @@ class train_multi_center_dual_ride:
                         loss_ce = self.loss_fc(predictions, labels, extra_info)
                     iter_info_print[self.training_opt["loss"]] = loss_ce.sum().item()
                 else:
-                    ce_losses = []
-                    for logit in all_logits:
-                        if self.mix_up:
-                            ce_losses.append(
-                                self.mixup_criterion(logit, labels_a, labels_b, lam)
-                            )
-                        else:
-                            ce_losses.append(self.loss_fc(logit, labels))
-                    loss_ce = sum(ce_losses)
-                    for i, branch_loss in enumerate(ce_losses):
-                        iter_info_print[
-                            self.training_opt["loss"] + "_{}".format(i)
-                        ] = branch_loss.sum().item()
+                    raise Exception("Error loss!")
 
                 # center loss
                 self.center_optimizer.zero_grad()
                 if self.mix_up:
                     loss_ct = (
                         self.mixup_center_criterion(
-                            features, labels_a, labels_b, lam, indexs
+                            features, labels_a, labels_b, lam, indexs, after_indexs
                         )
                         * center_weight
                     )

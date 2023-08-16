@@ -109,7 +109,18 @@ class CoarseLeadingForest:
         return dist
 
     def _compute_density(self, dist: np.array) -> np.array:
-        tmp = np.exp(-((dist / self.max_dist) ** 2))
+        if len(dist) <= self.max_sample_size:
+            tmp = np.exp(-((dist / self.max_dist) ** 2))
+        else:
+            tmp_file = path.join(mkdtemp(), "clf_dens.dat")
+            tmp = np.memmap(
+                tmp_file, dtype="float32", mode="w+", shape=(len(dist), len(dist))
+            )
+            for i in range(0, len(dist), self.max_sample_size):
+                end = i + self.max_sample_size
+                if end > len(dist):
+                    end = len(dist)
+                tmp[i:end] = np.exp(-((dist[i:end] / self.max_dist) ** 2))
         tmp[dist > self.max_dist] = 0
         np.fill_diagonal(tmp, 0)
         return np.sum(tmp, axis=0)
