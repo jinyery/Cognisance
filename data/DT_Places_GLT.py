@@ -115,9 +115,9 @@ class Places_GLT(data.Dataset):
     def load_frequencies(self):
         frequencies = dict()
         for inst in self.data:
-            if self.cat_ratio[self.inst_cat[inst]] < 0.1:
+            if self.cat_ratio[self.inst_cat[inst]] < 0.001:
                 frequencies[inst] = 0
-            elif self.cat_ratio[self.inst_cat[inst]] < 0.3:
+            elif self.cat_ratio[self.inst_cat[inst]] < 0.01:
                 frequencies[inst] = 1
             else:
                 frequencies[inst] = 2
