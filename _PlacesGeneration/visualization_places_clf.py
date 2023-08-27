@@ -3,7 +3,9 @@ import json
 import os
 import random
 import argparse
+import sys
 
+sys.path.append("..")
 
 from sklearn.cluster import KMeans
 
@@ -23,7 +25,7 @@ from utils.clusting_utils import CoarseLeadingForest
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--model_path",
-    default="~/Datasets/places365/data_256/",
+    default="./checkpoints/epoch-99.pth",
     type=str,
     help="indicate the path of pretrain model for Places365.",
 )
@@ -35,8 +37,9 @@ parser.add_argument(
 )
 parser.add_argument(
     "--sub_path",
-    default="c/campus",
     type=str,
+    nargs='+',
+    required=True,
     help="indicate the sub path of train data for Places365.",
 )
 parser.add_argument(
@@ -64,8 +67,17 @@ torch.cuda.manual_seed_all(args.seed)
 class PlacesExtract(Dataset):
     def __init__(self, data_path, sub_path):
         super(PlacesExtract, self).__init__()
-        names = os.listdir(os.path.join(data_path, sub_path))
-        self.images = [os.path.join(data_path, sub_path, name) for name in names]
+        if isinstance(sub_path, list):
+            names = list()
+            self.images = list()
+            for sub in sub_path:
+                tmp_names = os.listdir(os.path.join(data_path, sub))
+                tmp_images = [os.path.join(data_path, sub, name) for name in tmp_names]
+                names += tmp_names
+                self.images += tmp_images
+        else: 
+            names = os.listdir(os.path.join(data_path, sub_path))
+            self.images = [os.path.join(data_path, sub_path, name) for name in names]
         self.transform = transforms.Compose(
             [
                 transforms.Resize(256),
@@ -88,10 +100,10 @@ class PlacesExtract(Dataset):
         return sample, index
 
 
-def get_loader(sub_path, batch_size=256):
+def get_loader(sub_path, batch_size=128):
     dataset = PlacesExtract(args.data_path, sub_path)
     loader = data.DataLoader(
-        dataset, batch_size=batch_size, shuffle=False, pin_memory=True, num_workers=8
+        dataset, batch_size=batch_size, shuffle=False, pin_memory=False, num_workers=8
     )
     return loader, dataset
 
@@ -130,7 +142,7 @@ def get_outputs(model, sub_path):
     features = []
     out_paths = []
     model.eval()
-    val_loader, val_data = get_loader(sub_path=sub_path, batch_size=64)
+    val_loader, val_data = get_loader(sub_path=sub_path, batch_size=16)
     img_paths = val_data.images
 
     with torch.no_grad():
@@ -152,13 +164,13 @@ def get_outputs(model, sub_path):
 def main(args):
     model = load_model(args.model_path)
     features, img_paths = get_outputs(model, args.sub_path)
-    clf = CoarseLeadingForest(samples=features)
+    clf = CoarseLeadingForest(samples=features, min_dist_multiple=0.6, max_dist_multiple=1.5)
     paths, _ = clf.generate_path(detailed=True)
     for i, path in enumerate(paths):
         print("========================================")
         print(f"Path {str(i)} (total cn:{len(path)}):")
         for j, cn in enumerate(path):
-            print(f"CoarseNode {str(j)}:")
+            print(f"CoarseNode {str(j)} (total fn:{len(cn)}):")
             for n in cn:
                 print(f"Index:{str(n)}, path:{img_paths[n]}")
 

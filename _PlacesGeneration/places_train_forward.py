@@ -20,7 +20,7 @@ from tqdm import tqdm
 
 NUM_EPOCH = 100
 SAVE_EPOCH = 10
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 PRINT_STEPS = 100
 NUM_CLASSES = 344
 OUTPUTS_DIR = os.path.join(os.path.dirname(__file__), "checkpoints")
@@ -37,6 +37,7 @@ class Places365TrainSet(Dataset):
         self.cat_inst = dict()
         self.inst_cat = dict()
         self.inst_path = dict()
+        self.cat_strange = dict()
 
         self.transform = transforms.Compose(
             [
@@ -116,6 +117,7 @@ class Places365ExtractSet(DataLoader):
         self.inst_cat = all_set.inst_cat
         self.inst_path = all_set.inst_path
         self.insts = self.cat_inst[self.category]
+        all_set.cat_strange[category] = list()
         self.transform = transforms.Compose(
             [
                 transforms.Resize(256),
@@ -133,14 +135,14 @@ class Places365ExtractSet(DataLoader):
     def __getitem__(self, index):
         inst_id = self.insts[index]
         path = self.inst_path[inst_id]
-        catgory = self.inst_cat[inst_id]
+        category = self.inst_cat[inst_id]
 
         with open(os.path.join(self.data_path, path), "rb") as f:
             sample = Image.open(f).convert("RGB")
         if self.transform is not None:
             sample = self.transform(sample)
 
-        return sample, catgory
+        return sample, category
 
     def order_inst(self, order_list):
         insts = list()
@@ -288,7 +290,10 @@ def data_info(data_path, anno_path, model_path=None):
             paths, _ = clf.generate_path(detailed=True)
             paths_flatten = [reduce(add, path) for path in paths]
             for i, path_flatten in enumerate(paths_flatten):
-                cat_attr_inst[cat][i] = sub_set.order_inst(path_flatten)
+                insts_tmp = sub_set.order_inst(path_flatten)
+                cat_attr_inst[cat][i] = insts_tmp
+                if len(path_flatten) == 1:
+                    train_set.cat_strange[cat].append(insts_tmp[0])
             clf_path = os.path.join(OUTPUTS_DIR, "clf")
             if not os.path.exists(clf_path):
                 os.makedirs(clf_path)
@@ -300,6 +305,7 @@ def data_info(data_path, anno_path, model_path=None):
         train_set.cat_inst,
         train_set.inst_cat,
         train_set.inst_path,
+        train_set.cat_strange
     )
 
 

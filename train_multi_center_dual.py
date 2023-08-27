@@ -363,7 +363,17 @@ class train_multi_center_dual:
             processing_bar.set_description(
                 f"Building CoarseLeadingForest (label:{cat}, label_size:{cat_size})"
             )
-            clf = CoarseLeadingForest(list(cat_items.values()), metric=self.metric)
+            if "clusting" in self.config:
+                min_dist_multiple = self.config["clusting"]["min_dist_multiple"]
+                max_dist_multiple = self.config["clusting"]["max_dist_multiple"]
+                clf = CoarseLeadingForest(
+                    list(cat_items.values()),
+                    metric=self.metric,
+                    min_dist_multiple=min_dist_multiple,
+                    max_dist_multiple=max_dist_multiple,
+                )
+            else:
+                clf = CoarseLeadingForest(list(cat_items.values()), metric=self.metric)
             self.cat_clf[cat] = clf
 
             paths, repetitions = clf.generate_path(detailed=True)

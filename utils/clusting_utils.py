@@ -46,11 +46,15 @@ class CoarseLeadingForest:
         min_dist=None,
         max_dist=None,
         max_sample_size=10000,
+        min_dist_multiple = 0.3,
+        max_dist_multiple = 2.7
     ) -> None:
         self.metric = metric
         self.min_dist = min_dist
         self.max_dist = max_dist
         self.max_sample_size = max_sample_size
+        self.min_dist_multiple = min_dist_multiple
+        self.max_dist_multiple = max_dist_multiple
 
         self.root_ids: list[int] = list()
         self.coarse_nodes: list[CoarseNode] = list()
@@ -104,8 +108,8 @@ class CoarseLeadingForest:
                 top_k = np.sort(dist[i])[1:4]
                 base += np.mean(top_k)
             base /= len(samples)
-            self.min_dist = base * 0.3
-            self.max_dist = base * 2.7
+            self.min_dist = base * self.min_dist_multiple
+            self.max_dist = base * self.max_dist_multiple
         return dist
 
     def _compute_density(self, dist: np.array) -> np.array:

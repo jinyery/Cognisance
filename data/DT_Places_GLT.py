@@ -67,8 +67,6 @@ class Places_GLT(data.Dataset):
         self.frequencies = self.load_frequencies()
         self.labels = self.load_labels()
 
-        # save dataset info
-        logger.info("=====> Save dataset info")
         self.dataset_info = {
             "data": self.data,
             "inst_cat": self.inst_cat,
@@ -76,7 +74,9 @@ class Places_GLT(data.Dataset):
             "frequencies": self.frequencies,
         }
 
-        self.save_dataset_info(output_path)
+        # # save dataset info
+        # logger.info("=====> Save dataset info")
+        # self.save_dataset_info(output_path)
 
     def __len__(self):
         return len(self.data)
