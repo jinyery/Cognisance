@@ -233,14 +233,19 @@ if __name__ == "__main__":
     if os.path.exists(save_info_path):
         with open(save_info_path, "rb") as file:
             save_info = pickle.load(file)
-        cat_attr_inst, cat_inst, inst_cat, inst_path = save_info
+        cat_attr_inst, cat_inst, inst_cat, inst_path, cat_strange = save_info
     else:
         save_info = data_info(args.data_path, args.anno_path, args.model_path)
-        cat_attr_inst, cat_inst, inst_cat, inst_path = save_info
+        cat_attr_inst, cat_inst, inst_cat, inst_path, cat_strange = save_info
         with open(save_info_path, "wb") as file:
             pickle.dump(save_info, file)
 
     used_inst = list()
+    if args.remove_strange:
+        for tmp_cat in cat_strange:
+            used_inst.extend(cat_strange[tmp_cat])
+        print("Removed_insts:\n", used_inst)
+
     train_set = sampling_train_set(SIZE_OF_TRAIN_SET, cat_inst, used_inst)
     val_set = sampling_val_set(SIZE_OF_VAL_SET, cat_inst, used_inst)
     test_set = sampling_test_set(SIZE_OF_TEST_SET, cat_inst, used_inst)
