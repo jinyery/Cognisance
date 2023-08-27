@@ -286,7 +286,7 @@ def data_info(data_path, anno_path, model_path=None):
                 f"Building CoarseLeadingForest (label:{cat}, label_size:{len(all_feat)})"
             )
 
-            clf = CoarseLeadingForest(samples=all_feat)
+            clf = CoarseLeadingForest(samples=all_feat, min_dist_multiple=0.6, max_dist_multiple=1.5)
             paths, _ = clf.generate_path(detailed=True)
             paths_flatten = [reduce(add, path) for path in paths]
             for i, path_flatten in enumerate(paths_flatten):
