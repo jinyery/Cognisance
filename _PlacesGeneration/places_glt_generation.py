@@ -10,11 +10,11 @@ from places_train_forward import data_info
 os.environ["TMPDIR"] = os.path.expanduser("~/tmp")
 
 N_CLASSES = 344
-POWER_EXPONENT = 0.8
-SIZE_OF_TRAIN_SET = 120000
-SIZE_OF_VAL_SET = 10000
+POWER_EXPONENT = 0.7
+SIZE_OF_TRAIN_SET = 140000
+SIZE_OF_VAL_SET = 30000
 SIZE_OF_TEST_SET = 40000
-SIZE_OF_TEST_SET_CBL = 80000
+SIZE_OF_TEST_SET_CBL = 60000
 SIZE_OF_TEST_SET_GBL = 60000
 
 
@@ -218,7 +218,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--remove_strange",
-        default=False,
+        default=True,
         type=bool,
         help="Remove strange samples from the dataset for Places-GLT.",
     )
