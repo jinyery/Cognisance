@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import utils.general_utils as utils
 from data.dataloader import get_loader
 
-INVALID_ATTRIBUTE_DATASET = ('MSCOCO-LT', 'MSCOCO-BL')
+INVALID_ATTRIBUTE_DATASET = ('MSCOCO-LT', 'MSCOCO-BL', 'Places-GLT')
 
 class acc_by_splits():
     def __init__(self, logger, stype):
