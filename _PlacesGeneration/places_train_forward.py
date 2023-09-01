@@ -292,7 +292,7 @@ def data_info(data_path, anno_path, model_path=None):
             for i, path_flatten in enumerate(paths_flatten):
                 insts_tmp = sub_set.order_inst(path_flatten)
                 cat_attr_inst[cat][i] = insts_tmp
-                if len(path_flatten) <= 3:
+                if len(path_flatten) <= 5:
                     train_set.cat_strange[cat].extend(insts_tmp)
             clf_path = os.path.join(OUTPUTS_DIR, "clf")
             if not os.path.exists(clf_path):
