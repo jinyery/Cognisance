@@ -82,6 +82,6 @@ checkpoint_opt:
 saving_opt:
   save_all: false
 
-# clusting:
-#   min_dist_multiple: 0.6
-#   max_dist_multiple: 1.5
+clusting:
+  min_dist_multiple: 0.6
+  max_dist_multiple: 1.8
