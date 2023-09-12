@@ -31,84 +31,19 @@ Please follow the above links to prepare the datasets.
 ## Conduct Training and Testing
 
 ### Train Models
-Run the following command to train a baseline model on Train-GLT of MSCOCO-GLT:
+Run the following command to train a TRAIN_TYPE model:
 ```
-python main.py --cfg config/COCO_LT.yaml --output_dir checkpoints/coco_glt/train/baseline --require_eval --train_type baseline --phase train
+python main.py --cfg CONFIG_PATH.yaml --output_dir OUTPUT_PATH --require_eval --train_type TRAIN_TYPE --phase train
 ```
-
-Run the following command to train a center_dual model on Train-GLT of MSCOCO-GLT:
-```
-python main.py --cfg config/COCO_LT.yaml --output_dir checkpoints/coco_glt/train/center_dual --require_eval --train_type center_dual --phase train
-```
-
-Run the following command to train a multi_center_dual model on Train-GLT of MSCOCO-GLT:
-```
-python main.py --cfg config/COCO_LT.yaml --output_dir checkpoints/coco_glt/train/multi_center_dual --require_eval --train_type multi_center_dual --phase train
-```
-
-Run the following command to train a multi_center_dual_mix model on Train-GLT of MSCOCO-GLT:
-```
-python main.py --cfg config/COCO_LT.yaml --output_dir checkpoints/coco_glt/train/multi_center_dual_mix --require_eval --train_type multi_center_dual_mix --phase train
-```
-
-Run the following command to train a multi_center_dual_false model on Train-GLT of MSCOCO-GLT:
-```
-python main.py --cfg config/COCO_LT.yaml --output_dir checkpoints/coco_glt/train/multi_center_dual_false --require_eval --train_type multi_center_dual_false --phase train
-```
-
-Run the following command to train a multi_center_dual_plain model on Train-GLT of MSCOCO-GLT:
-```
-python main.py --cfg config/COCO_LT.yaml --output_dir checkpoints/coco_glt/train/multi_center_dual_plain --require_eval --train_type multi_center_dual_plain --phase train
-```
-
-Run the following command to train a multi_center_dual_plain_mix model on Train-GLT of MSCOCO-GLT:
-```
-python main.py --cfg config/COCO_LT.yaml --output_dir checkpoints/coco_glt/train/multi_center_dual_plain_mix --require_eval --train_type multi_center_dual_plain_mix --phase train
-```
-
-Run the following command to train a multi_center_dual_plain_false model on Train-GLT of MSCOCO-GLT:
-```
-python main.py --cfg config/COCO_LT.yaml --output_dir checkpoints/coco_glt/train/multi_center_dual_plain_false --require_eval --train_type multi_center_dual_plain_false --phase train
-```
-
 
 ### Test Models
-Run the following command to test a baseline model on Train-GLT of MSCOCO-GLT:
+Run the following command to test a baseline model:
 ```
-python main.py --cfg config/COCO_LT.yaml  --output_dir checkpoints/coco_glt/test/baseline --require_eval --train_type baseline --phase test --load_dir checkpoints/coco_glt/train/baseline/YOUR_CHECKPOINT.pth
-```
-
-Run the following command to test a center_dual model on Train-GLT of MSCOCO-GLT:
-```
-python main.py --cfg config/COCO_LT.yaml  --output_dir checkpoints/coco_glt/test/center_dual --require_eval --train_type center_dual --phase test --load_dir checkpoints/coco_glt/train/center_dual/YOUR_CHECKPOINT.pth
+python main.py --cfg CONFIG_PATH.yaml  --output_dir OUTPUT_PATH --require_eval --train_type TRAIN_TYPE --phase test --load_dir YOUR_CHECKPOINT.pth
 ```
 
-Run the following command to test a multi_center_dual model on Train-GLT of MSCOCO-GLT:
+### Train All
+Run the following command to train all models:
 ```
-python main.py --cfg config/COCO_LT.yaml  --output_dir checkpoints/coco_glt/test/multi_center_dual --require_eval --train_type multi_center_dual --phase test --load_dir checkpoints/coco_glt/train/multi_center_dual/YOUR_CHECKPOINT.pth
-```
-
-Run the following command to test a multi_center_dual_mix model on Train-GLT of MSCOCO-GLT:
-```
-python main.py --cfg config/COCO_LT.yaml  --output_dir checkpoints/coco_glt/test/multi_center_dual_mix --require_eval --train_type multi_center_dual_mix --phase test --load_dir checkpoints/coco_glt/train/multi_center_dual_mix/YOUR_CHECKPOINT.pth
-```
-
-Run the following command to test a multi_center_dual_false model on Train-GLT of MSCOCO-GLT:
-```
-python main.py --cfg config/COCO_LT.yaml  --output_dir checkpoints/coco_glt/test/multi_center_dual_false --require_eval --train_type multi_center_dual_false --phase test --load_dir checkpoints/coco_glt/train/multi_center_dual_false/YOUR_CHECKPOINT.pth
-```
-
-Run the following command to test a multi_center_dual_plain model on Train-GLT of MSCOCO-GLT:
-```
-python main.py --cfg config/COCO_LT.yaml  --output_dir checkpoints/coco_glt/test/multi_center_dual_plain --require_eval --train_type multi_center_dual_plain --phase test --load_dir checkpoints/coco_glt/train/multi_center_dual_plain/YOUR_CHECKPOINT.pth
-```
-
-Run the following command to test a multi_center_dual_plain_mix model on Train-GLT of MSCOCO-GLT:
-```
-python main.py --cfg config/COCO_LT.yaml  --output_dir checkpoints/coco_glt/test/multi_center_dual_plain_mix --require_eval --train_type multi_center_dual_plain_mix --phase test --load_dir checkpoints/coco_glt/train/multi_center_dual_plain_mix/YOUR_CHECKPOINT.pth
-```
-
-Run the following command to test a multi_center_dual_plain_false model on Train-GLT of MSCOCO-GLT:
-```
-python main.py --cfg config/COCO_LT.yaml  --output_dir checkpoints/coco_glt/test/multi_center_dual_plain_false --require_eval --train_type multi_center_dual_plain_false --phase test --load_dir checkpoints/coco_glt/train/multi_center_dual_plain_false/YOUR_CHECKPOINT.pth
+bash run_all.sh -d DATASET
 ```
