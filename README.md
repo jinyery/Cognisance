@@ -1,5 +1,5 @@
-# Long-tail Classification Based on Invariant Feature Learning from A Multi-granularity Perspective
-## This Project is based on [Generalized Long-tailed Classification (GLT) Benchmarks](https://github.com/KaihuaTang/Generalized-Long-Tailed-Benchmarks.pytorch)
+# Long-Tailed Classification Based on Coarse-Grained Leading Forest and Multi-Center Loss
+### This Project is based on [Generalized Long-tailed Classification (GLT) Benchmarks](https://github.com/KaihuaTang/Generalized-Long-Tailed-Benchmarks.pytorch)
 
 ## Install the Requirement
 ```bash
