@@ -66,7 +66,14 @@ class train_multi_center_dual:
 
         # get loss
         self.loss_fc = create_loss(logger, config, self.train_loader)
-        if "cos_loss" in self.algorithm_opt and self.algorithm_opt["cos_loss"]:
+        if self.algorithm_opt["triplet_loss"]:
+            assert self.mix_up == False
+            self.metric = "euclidean"
+            self.loss_center = MultiCenterTripletLoss(
+                num_classes=classifier_args["num_classes"],
+                feat_dim=classifier_args["feat_dim"],
+            )
+        elif "cos_loss" in self.algorithm_opt and self.algorithm_opt["cos_loss"]:
             self.metric = "cosine"
             self.loss_center = MultiCenterCosLoss(
                 num_classes=classifier_args["num_classes"],
@@ -93,6 +100,7 @@ class train_multi_center_dual:
         self.denosing = False
         if "denosing" in self.training_opt and self.training_opt["denosing"]:
             self.denosing = True
+            self.logger.info("Denosing mode: {}".format(self.denosing))
 
     def get_center_weight(self, epoch):
         center_weight = self.algorithm_opt["center_weights"][0]
@@ -145,6 +153,7 @@ class train_multi_center_dual:
         # run epoch
         num_epoch = self.training_opt["num_epochs"]
         for epoch in range(num_epoch):
+            self._epoch = epoch
             self.logger.info("------------ Start Epoch {} -----------".format(epoch))
             self.logger.info(
                 "--------------- Environment Type {} -----------".format(
@@ -191,6 +200,11 @@ class train_multi_center_dual:
                     loss_ce = self.mixup_criterion(predictions, labels_a, labels_b, lam)
                 else:
                     loss_ce = self.loss_fc(predictions, labels)
+                    # env1_weight = 0.3
+                    # env_size = int(labels.shape[0] / 2)
+                    # loss_env1 = self.loss_fc(predictions[:env_size], labels[:env_size])
+                    # loss_env2 = self.loss_fc(predictions[env_size:], labels[env_size:])
+                    # loss_ce = env1_weight * loss_env1 + (1 - env1_weight) * loss_env2
                 iter_info_print[self.training_opt["loss"]] = loss_ce.sum().item()
 
                 # center loss
@@ -203,9 +217,15 @@ class train_multi_center_dual:
                         * center_weight
                     )
                 else:
+                    adv_labels = MultiCenterTripletLoss.gen_adv_labels(
+                        features, labels, predictions
+                    )
                     loss_ct = (
                         self.loss_center(
-                            features, labels, self.get_label_center(labels, indexs)
+                            features,
+                            labels,
+                            adv_labels,
+                            self.get_label_center(labels, indexs),
                         )
                         * center_weight
                     )
@@ -272,9 +292,10 @@ class train_multi_center_dual:
             # save env score
             env_score_memo = {}
 
-            if self.algorithm_opt["always_update"] or (
-                epoch in self.algorithm_opt["update_milestones"]
-            ):
+            if (
+                self.algorithm_opt["always_update"]
+                and epoch > self.algorithm_opt["update_milestones"][0]
+            ) or (epoch in self.algorithm_opt["update_milestones"]):
                 # update env mask
                 self.all_ind = torch.cat(all_ind, dim=0)
                 self.all_lab = torch.cat(all_lab, dim=0)
@@ -334,10 +355,8 @@ class train_multi_center_dual:
         )
         env2_score = env2_score * clf_weight
 
-        if len(self.noise_ind) > 0:
+        if self.denosing and self._epoch > self.algorithm_opt["update_milestones"][0]:
             self.logger.info(f"These samples maybe noise:{self.noise_ind}.")
-        if self.denosing:
-            env1_score[self.noise_ind] = 0
             env2_score[self.noise_ind] = 0
 
         env1_loader.sampler.set_parameter(env1_score)
@@ -375,6 +394,12 @@ class train_multi_center_dual:
             else:
                 clf = CoarseLeadingForest(list(cat_items.values()), metric=self.metric)
             self.cat_clf[cat] = clf
+            clf_dir = os.path.join(
+                self.config["output_dir"], "clf", "epoch_" + str(self._epoch)
+            )
+            if not os.path.exists(clf_dir):
+                os.makedirs(clf_dir)
+            clf.save(path=os.path.join(clf_dir, str(cat) + ".clf"))
 
             paths, repetitions = clf.generate_path(detailed=True)
             repetitions = torch.Tensor(repetitions)
@@ -386,10 +411,23 @@ class train_multi_center_dual:
                 for node in path:
                     small_node_weight = coarse_node_weight / len(node)
                     weights[node] += small_node_weight
-                    if len(path) == 1 and len(node) == 1:
-                        tmp = ind[node]
-                        self.noise_ind.extend(tmp.tolist())
             weights /= repetitions
+
+            if "denosing" in self.config:
+                min_size = self.config["denosing"]["min_size"]
+                min_depth = self.config["denosing"]["min_depth"]
+                num_layer = self.config["denosing"]["num_layer"]
+                density_percentile = self.config["denosing"]["density_percentile"]
+                noises = clf.get_noises(
+                    paths,
+                    min_size=min_size,
+                    min_depth=min_depth,
+                    num_layer=num_layer,
+                    density_percentile=density_percentile,
+                )
+            else:
+                noises = clf.get_noises(paths)
+            self.noise_ind.extend(ind[noises].tolist())
 
             if not self.plain:
                 # use Pareto principle to determine the scale parameter
@@ -419,12 +457,15 @@ class train_multi_center_dual:
     def update_center_loss(self):
         max_num_centers = 1
         label_center_list = list()
+        num_centers_of_labels = list()
         for cat in self.cat_ind.keys():
             if cat not in self.cat_clf:
                 label_center_list.append(None)
+                num_centers_of_labels.append(1)
                 continue
             clf = self.cat_clf[cat]
             num_tree = clf.num_tree()
+            num_centers_of_labels.append(num_tree)
             if num_tree > max_num_centers:
                 max_num_centers = num_tree
             default_centers = list()
@@ -435,7 +476,9 @@ class train_multi_center_dual:
                 default_centers.append(feat)
             label_center_list.append(default_centers)
         self.logger.info("=====> max_num_centers:" + str(max_num_centers))
-        self.loss_center.update_center(max_num_centers, label_center_list)
+        self.loss_center.update_center(
+            max_num_centers, num_centers_of_labels, label_center_list
+        )
         self.center_optimizer = torch.optim.SGD(self.loss_center.parameters(), lr=0.5)
 
     def get_label_center(self, labels, indexs):

@@ -1,4 +1,5 @@
 import numpy as np
+import pickle as pkl
 import os.path as path
 from tempfile import mkdtemp
 from sklearn.metrics import pairwise_distances as pair_dist
@@ -46,8 +47,9 @@ class CoarseLeadingForest:
         min_dist=None,
         max_dist=None,
         max_sample_size=10000,
-        min_dist_multiple = 0.3,
-        max_dist_multiple = 2.7
+        min_dist_multiple=0.3,
+        max_dist_multiple=2.7,
+        save_density = True
     ) -> None:
         self.metric = metric
         self.min_dist = min_dist
@@ -55,6 +57,7 @@ class CoarseLeadingForest:
         self.max_sample_size = max_sample_size
         self.min_dist_multiple = min_dist_multiple
         self.max_dist_multiple = max_dist_multiple
+        self.save_density = save_density
 
         self.root_ids: list[int] = list()
         self.coarse_nodes: list[CoarseNode] = list()
@@ -71,6 +74,24 @@ class CoarseLeadingForest:
         for node in self.coarse_nodes:
             num_all_node += len(node)
         return num_all_node
+
+    def num_of_one_tree(self, root_id):
+        sum = 0
+        root = self.coarse_nodes[root_id]
+        sum += len(root.members)
+        if root.sub_ids is not None:
+            for sub_id in root.sub_ids:
+                sum += self.num_of_one_tree(sub_id)
+        return sum
+
+    def mem_of_one_tree(self, root_id):
+        mem = list()
+        root = self.coarse_nodes[root_id]
+        mem.extend(root.members)
+        if root.sub_ids is not None:
+            for sub_id in root.sub_ids:
+                mem.extend(self.mem_of_one_tree(sub_id))
+        return mem
 
     # return coarse_node_id
     def where_is_fine_node(self, fine_node_id):
@@ -105,7 +126,7 @@ class CoarseLeadingForest:
         if self.min_dist is None or self.max_dist is None:
             base = 0
             for i in range(len(samples)):
-                top_k = np.sort(dist[i])[1:4]
+                top_k = np.sort(dist[i])[1:3]
                 base += np.mean(top_k)
             base /= len(samples)
             self.min_dist = base * self.min_dist_multiple
@@ -127,6 +148,9 @@ class CoarseLeadingForest:
                 tmp[i:end] = np.exp(-((dist[i:end] / self.max_dist) ** 2))
         tmp[dist > self.max_dist] = 0
         np.fill_diagonal(tmp, 0)
+        if self.save_density:
+            self.density = np.sum(tmp, axis=0)
+            return self.density
         return np.sum(tmp, axis=0)
 
     def compute_leader(self, samples: np.array):
@@ -210,3 +234,46 @@ class CoarseLeadingForest:
             return paths, repetitions
         else:
             return detailed_paths, detailed_repetitions
+        
+    def save(self, path):
+        with open(path, 'wb') as file:
+            pkl.dump(self, file)
+
+    @staticmethod
+    def load(path):
+        with open(path, 'rb') as file:
+            data = pkl.load(file)
+        return data
+
+    def get_noises(self, detailed_paths, min_size=3, min_depth=15, num_layer=1, density_percentile=25):
+        a = 0
+        b = 0
+        c = 0
+        noises = list()
+        invalid_root = list()
+        for path in detailed_paths:
+            if path[0][0] in invalid_root:
+                continue
+
+            coarse_node_id = self.where_is_fine_node(path[0][0])
+            tree_size = self.num_of_one_tree(coarse_node_id)
+            if tree_size < min_size:
+                invalid_root.append(path[0][0])
+                tmp_noises = self.mem_of_one_tree(coarse_node_id)
+                noises.extend(tmp_noises)
+                a+=len(tmp_noises)
+                continue
+
+            if len(path) >= min_depth:
+                remaining = len(path) - min_depth
+                effective = num_layer if num_layer < remaining else remaining
+                for node in path[-effective:]:
+                    noises.extend(node)
+                    b+=len(node)
+
+        noises = list(set(noises))
+        density_threshold = np.percentile(self.density, density_percentile)
+        final_noises = list(filter(lambda x:x<density_threshold, noises))
+        c = len(final_noises)
+        print(f"a:{a}, b:{b}, c:{c}")
+        return final_noises

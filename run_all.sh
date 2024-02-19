@@ -7,7 +7,7 @@ func() {
     echo "NAME, the Name of the task.(default to '')"
     echo "SEED, the random number seed.(default to 25)"
     echo "RANGE, the range of task.(all/mine/plain/others/plus_others/single)"
-    echo "DATASET, the dataset of task.(COCO_LT/ImageNet_LT/Places_GLT, default to ImageNet_LT)"
+    echo "DATASET, the dataset of task.(COCO_LT/ImageNet_LT/Places_GLT, default to Places_GLT)"
     echo "MODE, it's required if the RANGE is 'single'.(default to multi_center_dual)"
     echo "DENOSING, Adding this option will remove noise samples through unsupervised learning."
     exit 1
@@ -16,7 +16,7 @@ func() {
 NAME=""
 SEED=25
 RANGE="all"
-DATASET="ImageNet_LT"
+DATASET="Food101N"
 MODE="multi_center_dual"
 DENOSING=""
 
@@ -54,18 +54,19 @@ case $RANGE in
     python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/TADE --require_eval --train_type TADE --phase train --seed $SEED $DENOSING
     python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/RIDE --require_eval --train_type RIDE --phase train --seed $SEED $DENOSING
     python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/center_dual --require_eval --train_type center_dual --phase train --seed $SEED $DENOSING
-    python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual --require_eval --train_type multi_center_dual --phase train --seed $SEED $DENOSING
-    python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_mix --require_eval --train_type multi_center_dual_mix --phase train --seed $SEED $DENOSING
-    python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_false --require_eval --train_type multi_center_dual_false --phase train --seed $SEED $DENOSING
+    # python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual --require_eval --train_type multi_center_dual --phase train --seed $SEED $DENOSING
+    # python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_mix --require_eval --train_type multi_center_dual_mix --phase train --seed $SEED $DENOSING
+    # python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_false --require_eval --train_type multi_center_dual_false --phase train --seed $SEED $DENOSING
     # python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_plain --require_eval --train_type multi_center_dual_plain --phase train --seed $SEED $DENOSING
     # python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_plain_mix --require_eval --train_type multi_center_dual_plain_mix --phase train --seed $SEED $DENOSING
     # python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_plain_false --require_eval --train_type multi_center_dual_plain_false --phase train --seed $SEED $DENOSING
-    python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_blsoftmax --require_eval --train_type multi_center_dual_blsoftmax --phase train --seed $SEED $DENOSING
-    python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_logit_adj --require_eval --train_type multi_center_dual_logit_adj --phase train --seed $SEED $DENOSING
-    python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_mixup --require_eval --train_type multi_center_dual_mixup --phase train --seed $SEED $DENOSING
-    python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_randaug --require_eval --train_type multi_center_dual_randaug --phase train --seed $SEED $DENOSING
-    python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_tade --require_eval --train_type multi_center_dual_tade --phase train --seed $SEED $DENOSING
-    python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_ride --require_eval --train_type multi_center_dual_ride --phase train --seed $SEED $DENOSING
+    # python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_blsoftmax --require_eval --train_type multi_center_dual_blsoftmax --phase train --seed $SEED $DENOSING
+    # python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_logit_adj --require_eval --train_type multi_center_dual_logit_adj --phase train --seed $SEED $DENOSING
+    # python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_mixup --require_eval --train_type multi_center_dual_mixup --phase train --seed $SEED $DENOSING
+    python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_randaug --require_eval --train_type multi_center_dual_randaug --phase train --seed $SEED
+    python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_randaug_denosing --require_eval --train_type multi_center_dual_randaug --phase train --seed $SEED $DENOSING
+    # python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_tade --require_eval --train_type multi_center_dual_tade --phase train --seed $SEED $DENOSING
+    # python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual_ride --require_eval --train_type multi_center_dual_ride --phase train --seed $SEED $DENOSING
     ;;
 "mine")
     python -u main.py --cfg config/$DATASET.yaml --output_dir $OUTPUT_DIR/multi_center_dual --require_eval --train_type multi_center_dual --phase train --seed $SEED $DENOSING

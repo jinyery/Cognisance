@@ -13,6 +13,8 @@ from torch.utils.data.sampler import Sampler
 from .DT_COCO_LT import COCO_LT
 from .DT_ImageNet_LT import ImageNet_LT
 from .DT_Places_GLT import Places_GLT
+from .DT_Animal10N import Animal10N
+from .DT_Food101N import Food101N
 
 from .Sampler_ClassAware import ClassAwareSampler
 from .Sampler_MultiEnv import WeightedSampler, DistributionSampler, FixSeedSampler
@@ -46,6 +48,23 @@ def get_loader(config, phase, testset, logger):
                              data_path=config['dataset']['data_path'], 
                              anno_path=config['dataset']['anno_path'],
                              testset=testset,
+                             rgb_mean=config['dataset']['rgb_mean'],
+                             rgb_std=config['dataset']['rgb_std'],
+                             rand_aug = config['dataset']['rand_aug'],
+                             output_path=config['output_dir'], 
+                             logger=logger)
+    elif config['dataset']['name'] == "Animal10N":
+        split = Animal10N(phase=phase,
+                             data_path=config['dataset']['data_path'], 
+                             rgb_mean=config['dataset']['rgb_mean'],
+                             rgb_std=config['dataset']['rgb_std'],
+                             rand_aug = config['dataset']['rand_aug'],
+                             output_path=config['output_dir'], 
+                             logger=logger)
+    elif config['dataset']['name'] == "Food101N":
+        split = Food101N(phase=phase,
+                             data_path=config['dataset']['data_path'], 
+                             anno_path=config['dataset']['anno_path'],
                              rgb_mean=config['dataset']['rgb_mean'],
                              rgb_std=config['dataset']['rgb_std'],
                              rand_aug = config['dataset']['rand_aug'],

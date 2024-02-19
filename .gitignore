@@ -11,6 +11,7 @@ coco_glt
 /test/
 *.tar
 *.tar.gz
+tmp*
 
 
 !cocottributes_py3.jbl
