@@ -1,4 +1,3 @@
-
 # detailed configs for each algorithms
 
 # algorithm : baseline / mixup / TDE / cRT / LWS / IRM
@@ -18,7 +17,6 @@ baseline:
   classifier_type: FC
   algorithm_opt: {}
 
-
 blsoftmax:
   test_type: baseline
   sampler: default
@@ -27,7 +25,6 @@ blsoftmax:
   backbone_type: ResNext
   classifier_type: FC
   algorithm_opt: {}
-
 
 # mixup
 mixup:
@@ -38,7 +35,6 @@ mixup:
   backbone_type: ResNext
   classifier_type: FC
   algorithm_opt: {}
-
 
 # rand_aug
 rand_aug:
@@ -51,7 +47,6 @@ rand_aug:
   classifier_type: FC
   algorithm_opt: {}
 
-
 # BBN pipelines
 BBN:
   test_type: baseline
@@ -62,10 +57,9 @@ BBN:
   loss_type: CrossEntropy
   backbone_type: BBN
   classifier_type: BBN
-  scheduler: 'multistep'
-  scheduler_params: {gamma: 0.1, milestones: [60, 80]}
+  scheduler: "multistep"
+  scheduler_params: { gamma: 0.1, milestones: [60, 80] }
   algorithm_opt: {}
-
 
 # TDE pipelines
 TDE:
@@ -77,7 +71,6 @@ TDE:
   classifier_type: TDE
   algorithm_opt: {}
 
-
 # Focal loss
 Focal:
   test_type: baseline
@@ -88,7 +81,6 @@ Focal:
   classifier_type: FC
   algorithm_opt: {}
 
-
 # Focal loss + Logit Adjustment
 FocalLA:
   test_type: LA
@@ -97,7 +89,7 @@ FocalLA:
   loss_type: Focal
   backbone_type: ResNext
   classifier_type: LA
-  algorithm_opt: {tro: 1.0}
+  algorithm_opt: { tro: 1.0 }
 
 # Learning from failure loss
 LFF:
@@ -107,7 +99,7 @@ LFF:
   loss_type: IFF
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {tro: 1.0}
+  algorithm_opt: { tro: 1.0 }
 
 # Learning from failure loss + Logit Adjustment
 LFFLA:
@@ -117,8 +109,7 @@ LFFLA:
   loss_type: IFF
   backbone_type: ResNext
   classifier_type: LA
-  algorithm_opt: {tro: 1.0}
-
+  algorithm_opt: { tro: 1.0 }
 
 # Logit Adjustment
 LA:
@@ -128,10 +119,9 @@ LA:
   loss_type: CrossEntropy
   backbone_type: ResNext
   classifier_type: LA
-  algorithm_opt: {tro: 1.0}
+  algorithm_opt: { tro: 1.0 }
 
-
-# LDAM 
+# LDAM
 LDAM:
   test_type: baseline
   sampler: default
@@ -139,11 +129,10 @@ LDAM:
   loss_type: LDAM
   backbone_type: ResNext
   classifier_type: LDAM
-  optim_params: {lr: 0.1, momentum: 0.9, weight_decay: 0.0002}
-  scheduler: 'multistep'
-  scheduler_params: {gamma: 0.01, milestones: [80, 90]}
+  optim_params: { lr: 0.1, momentum: 0.9, weight_decay: 0.0002 }
+  scheduler: "multistep"
+  scheduler_params: { gamma: 0.01, milestones: [80, 90] }
   algorithm_opt: {}
-
 
 # RIDE pipelines
 RIDE:
@@ -153,11 +142,10 @@ RIDE:
   loss_type: RIDE # CrossEntropy
   backbone_type: RIDE
   classifier_type: RIDE
-  optim_params: {lr: 0.1, momentum: 0.9, weight_decay: 0.0002}
-  scheduler: 'multistep'
-  scheduler_params: {gamma: 0.1, milestones: [60, 80]}
-  algorithm_opt: {diversity_factor: -0.2}
-
+  optim_params: { lr: 0.1, momentum: 0.9, weight_decay: 0.0002 }
+  scheduler: "multistep"
+  scheduler_params: { gamma: 0.1, milestones: [60, 80] }
+  algorithm_opt: { diversity_factor: -0.2 }
 
 # TADE pipelines
 TADE:
@@ -167,8 +155,7 @@ TADE:
   loss_type: TADE # CrossEntropy
   backbone_type: RIDE
   classifier_type: RIDE
-  algorithm_opt: {tau: 2.0}
-
+  algorithm_opt: { tau: 2.0 }
 
 # decouple stage 1 instance-balanced feature learning
 stage1:
@@ -180,7 +167,6 @@ stage1:
   classifier_type: FC
   algorithm_opt: {}
 
-
 # decouple stage 2 class-balanced classifier learning
 crt_stage2:
   test_type: baseline
@@ -190,7 +176,6 @@ crt_stage2:
   backbone_type: ResNext
   classifier_type: FC
   algorithm_opt: {}
-
 
 # decouple stage 2 class-balanced classifier learning
 lws_stage2:
@@ -202,7 +187,6 @@ lws_stage2:
   classifier_type: LWS
   algorithm_opt: {}
 
-
 # decouple stage 2 class-balanced classifier for RIDE learning
 ride_stage2:
   test_type: baseline
@@ -211,15 +195,12 @@ ride_stage2:
   loss_type: CrossEntropy
   backbone_type: RIDE
   classifier_type: RIDE
-  optim_params: {lr: 0.1, momentum: 0.9, weight_decay: 0.0002}
+  optim_params: { lr: 0.1, momentum: 0.9, weight_decay: 0.0002 }
   algorithm_opt: {}
-
-
 
 ############################################################################
 # The Proposed GLT Method by Kaihua
 ############################################################################
-
 
 # center loss with dual env pipeline
 center_dual:
@@ -231,10 +212,18 @@ center_dual:
   loss_type: CrossEntropy # BalancedSoftmax
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : intra, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, cos_loss: False} 
+  algorithm_opt:
+    {
+      env_type: intra,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      triplet_loss: False,
+      cos_loss: False,
+    }
   # env_type : correctness / inter / intra / inter_intra / simple_aug
-
 
 # center loss with single env pipeline
 center_single:
@@ -246,10 +235,17 @@ center_single:
   loss_type: CrossEntropy # BalancedSoftmax
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : intra, sample_scale : 4.0, always_update: False, update_milestones: [],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False} 
+  algorithm_opt:
+    {
+      env_type: intra,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      triplet_loss: False,
+    }
   # env_type : correctness / inter / intra / inter_intra / simple_aug
-
 
 # center loss with single env pipeline
 center_triple:
@@ -262,10 +258,17 @@ center_triple:
   loss_type: CrossEntropy # BalancedSoftmax
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : intra, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False} 
+  algorithm_opt:
+    {
+      env_type: intra,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      triplet_loss: False,
+    }
   # env_type : correctness / inter / intra / inter_intra / simple_aug
-
 
 # center loss with dual env pipeline (mixup version)
 center_dual_mixup:
@@ -277,11 +280,17 @@ center_dual_mixup:
   loss_type: CrossEntropy
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : intra, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False} 
+  algorithm_opt:
+    {
+      env_type: intra,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      triplet_loss: False,
+    }
   # env_type : correctness / inter / intra / inter_intra / simple_aug
-
-
 
 # center loss + LDAM loss with dual env pipeline
 center_LDAM_dual:
@@ -293,12 +302,19 @@ center_LDAM_dual:
   loss_type: LDAM
   backbone_type: ResNext
   classifier_type: LDAM
-  scheduler: 'multistep'
-  scheduler_params: {gamma: 0.01, milestones: [80, 90]}
-  algorithm_opt: {env_type : intra, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], cos_loss: True} 
+  scheduler: "multistep"
+  scheduler_params: { gamma: 0.01, milestones: [80, 90] }
+  algorithm_opt:
+    {
+      env_type: intra,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      cos_loss: True,
+    }
   # env_type : correctness / inter / intra / inter_intra / simple_aug
-
 
 center_tade:
   test_type: baseline
@@ -309,8 +325,16 @@ center_tade:
   loss_type: TADE # TADE / CrossEntropy
   backbone_type: RIDE
   classifier_type: RIDE
-  algorithm_opt: {env_type : intra, sample_scale : 4.0, always_update: False, update_milestones: [60, 80], 
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], tau: 2.0} 
+  algorithm_opt:
+    {
+      env_type: intra,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      tau: 2.0,
+    }
   # env_type : correctness / inter / intra / inter_intra / simple_aug
 
 center_ride:
@@ -322,13 +346,20 @@ center_ride:
   loss_type: RIDE
   backbone_type: RIDE
   classifier_type: RIDE
-  scheduler: 'multistep'
-  scheduler_params: {gamma: 0.1, milestones: [60, 80]}
-  algorithm_opt: {env_type : intra, sample_scale : 4.0, always_update: False, update_milestones: [60, 80], 
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], diversity_factor: -0.2,
-                  cos_loss: True} 
+  scheduler: "multistep"
+  scheduler_params: { gamma: 0.1, milestones: [60, 80] }
+  algorithm_opt:
+    {
+      env_type: intra,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      diversity_factor: -0.2,
+      cos_loss: True,
+    }
   # env_type : correctness / inter / intra / inter_intra / simple_aug
-
 
 center_ride_mixup:
   test_type: baseline
@@ -339,13 +370,20 @@ center_ride_mixup:
   loss_type: RIDE
   backbone_type: RIDE
   classifier_type: RIDE
-  scheduler: 'multistep'
-  scheduler_params: {gamma: 0.1, milestones: [60, 80]}
-  algorithm_opt: {env_type : intra, sample_scale : 4.0, always_update: False, update_milestones: [60, 80], 
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], diversity_factor: -0.2,
-                  cos_loss: True} 
+  scheduler: "multistep"
+  scheduler_params: { gamma: 0.1, milestones: [60, 80] }
+  algorithm_opt:
+    {
+      env_type: intra,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      diversity_factor: -0.2,
+      cos_loss: True,
+    }
   # env_type : correctness / inter / intra / inter_intra / simple_aug
-  
 
 # dual env pipeline
 env_dual:
@@ -357,10 +395,16 @@ env_dual:
   loss_type: CrossEntropy
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : intra, sample_scale : 4.0, always_update: True, update_milestones: [30, 60, 90],
-                  center_milestones: [30, 60, 90], center_weights: [0.0, 0.0, 0.0]} 
+  algorithm_opt:
+    {
+      env_type: intra,
+      sample_scale: 4.0,
+      always_update: True,
+      update_milestones: [30, 60, 90],
+      center_milestones: [30, 60, 90],
+      center_weights: [0.0, 0.0, 0.0],
+    }
   # env_type : correctness / inter / intra / inter_intra / simple_aug
-
 
 # IRM dual env pipeline
 irm_dual:
@@ -372,17 +416,17 @@ irm_dual:
   loss_type: CrossEntropy
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : intra, irm_weight : 0.001, irm_alpha : 10, decay_milestones : [30, 60, 90],
-                  sample_scale : 4.0, always_update: True, update_milestones: [30, 60, 90]} 
+  algorithm_opt:
+    {
+      env_type: intra,
+      irm_weight: 0.001,
+      irm_alpha: 10,
+      decay_milestones: [30, 60, 90],
+      sample_scale: 4.0,
+      always_update: True,
+      update_milestones: [30, 60, 90],
+    }
   # env_type : correctness / inter / intra / inter_intra / simple_aug
-
-  
-
-
-
-
-
-
 
 ######################################################################
 
@@ -396,8 +440,6 @@ irm_dual:
 #  classifier_type: FC
 #  algorithm_opt: {weight_base: 0.1,  loss_base: 0.1,  q: 2.0}
 
-
-
 ## center loss with dual env domain mixup pipeline
 #domain_mixup:
 #  test_type: baseline
@@ -408,7 +450,7 @@ irm_dual:
 #  loss_type: CrossEntropy
 #  backbone_type: ResNext
 #  classifier_type: FC
-#  algorithm_opt: {env_type : inter_intra, center_weight : 0.001} 
+#  algorithm_opt: {env_type : inter_intra, center_weight : 0.001}
 #  # env_type : correctness / inter / intra / inter_intra / simple_aug
 
 ## center separate: CE for original env only, center loss for both environment
@@ -421,7 +463,7 @@ irm_dual:
 #  loss_type: CrossEntropy
 #  backbone_type: ResNext
 #  classifier_type: FC
-#  algorithm_opt: {env_type : intra, center_weight : 0.001, detach_inv: False} 
+#  algorithm_opt: {env_type : intra, center_weight : 0.001, detach_inv: False}
 #  # env_type : correctness / inter / intra / inter_intra / simple_aug
 
 # # metric learning stage 1 instance-balanced feature learning
@@ -447,7 +489,7 @@ irm_dual:
 #   loss_type: CrossEntropy
 #   backbone_type: ResNext
 #   classifier_type: FC
-#   algorithm_opt: {env_type : inter_intra, ce_weight : [1.0, 1.0], irm_weight : 0.0, irm_alpha : 0.0, mile_stones : [30, 60, 90]} 
+#   algorithm_opt: {env_type : inter_intra, ce_weight : [1.0, 1.0], irm_weight : 0.0, irm_alpha : 0.0, mile_stones : [30, 60, 90]}
 #   # env_type : correctness / inter / intra / inter_intra / simple_aug
 
 # # quad env pipeline
@@ -460,7 +502,7 @@ irm_dual:
 #   loss_type: CrossEntropy
 #   backbone_type: ResNext
 #   classifier_type: FC
-#   algorithm_opt: {env_type : inter_intra, irm_weight : 0.0, irm_alpha : 0.0, mile_stones : [30, 60, 90]} 
+#   algorithm_opt: {env_type : inter_intra, irm_weight : 0.0, irm_alpha : 0.0, mile_stones : [30, 60, 90]}
 #   # env_type : inter_intra / simple_aug
 
 # # IRM quad env pipeline
@@ -473,15 +515,12 @@ irm_dual:
 #   loss_type: CrossEntropy
 #   backbone_type: ResNext
 #   classifier_type: FC
-#   algorithm_opt: {env_type : inter_intra, irm_weight : 0.001, irm_alpha : 10, mile_stones : [30, 60, 90]} 
+#   algorithm_opt: {env_type : inter_intra, irm_weight : 0.001, irm_alpha : 10, mile_stones : [30, 60, 90]}
 #   # env_type : inter_intra / simple_aug
-
-
 
 ############################################################################
 # The Proposed GLT Method by YerY
 ############################################################################
-
 
 # multi center loss with dual env pipeline
 multi_center_dual:
@@ -493,9 +532,17 @@ multi_center_dual:
   loss_type: CrossEntropy # BalancedSoftmax
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80, 100],
-                  center_milestones: [0, 60, 80, 100], center_weights: [0.0, 0.005, 0.01, 0.05], triplet_loss: False, multi_type: 2} 
-
+  algorithm_opt:
+    {
+      env_type: clf,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80, 100],
+      center_milestones: [0, 60, 80, 100],
+      center_weights: [0.0, 0.005, 0.01, 0.05],
+      triplet_loss: False,
+      multi_type: 2,
+    }
 
 # multi center loss with dual env pipeline.(Only use multi center loss after the last update_milestone)
 multi_center_dual_mix:
@@ -507,9 +554,17 @@ multi_center_dual_mix:
   loss_type: CrossEntropy # BalancedSoftmax
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 1} 
-
+  algorithm_opt:
+    {
+      env_type: clf,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      triplet_loss: False,
+      multi_type: 1,
+    }
 
 # multi center loss with dual env pipeline.(In fact, there is only one center)
 multi_center_dual_false:
@@ -521,9 +576,17 @@ multi_center_dual_false:
   loss_type: CrossEntropy # BalancedSoftmax
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 0} 
-
+  algorithm_opt:
+    {
+      env_type: clf,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      triplet_loss: False,
+      multi_type: 0,
+    }
 
 # multi center loss with dual env pipeline.(Do not apply the Pareto principle)
 multi_center_dual_plain:
@@ -535,9 +598,18 @@ multi_center_dual_plain:
   loss_type: CrossEntropy # BalancedSoftmax
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 2, plain: True} 
-
+  algorithm_opt:
+    {
+      env_type: clf,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      triplet_loss: False,
+      multi_type: 2,
+      plain: True,
+    }
 
 # multi center loss with dual env pipeline.(Do not apply the Pareto principle and only use multi center loss after the last update_milestone)
 multi_center_dual_plain_mix:
@@ -549,9 +621,18 @@ multi_center_dual_plain_mix:
   loss_type: CrossEntropy # BalancedSoftmax
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 1, plain: True} 
-
+  algorithm_opt:
+    {
+      env_type: clf,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      triplet_loss: False,
+      multi_type: 1,
+      plain: True,
+    }
 
 # multi center loss with dual env pipeline.(Do not apply the Pareto principle and only one center)
 multi_center_dual_plain_false:
@@ -563,9 +644,18 @@ multi_center_dual_plain_false:
   loss_type: CrossEntropy # BalancedSoftmax
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 0, plain: True} 
-
+  algorithm_opt:
+    {
+      env_type: clf,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      triplet_loss: False,
+      multi_type: 0,
+      plain: True,
+    }
 
 # multi center loss with dual env pipeline (BalancedSoftmax version)
 multi_center_dual_blsoftmax:
@@ -577,9 +667,17 @@ multi_center_dual_blsoftmax:
   loss_type: BalancedSoftmax
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80],
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 2} 
-
+  algorithm_opt:
+    {
+      env_type: clf,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      triplet_loss: False,
+      multi_type: 2,
+    }
 
 # multi center loss with dual env pipeline (Logit-Adj version)
 multi_center_dual_logit_adj:
@@ -591,9 +689,18 @@ multi_center_dual_logit_adj:
   loss_type: BalancedSoftmax
   backbone_type: ResNext
   classifier_type: LA
-  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80], tro: 1.0,
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], triplet_loss: False, multi_type: 2} 
-
+  algorithm_opt:
+    {
+      env_type: clf,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      tro: 1.0,
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      triplet_loss: False,
+      multi_type: 2,
+    }
 
 # multi center loss with dual env pipeline (mixup version)
 multi_center_dual_mixup:
@@ -606,9 +713,17 @@ multi_center_dual_mixup:
   loss_type: CrossEntropy
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80, 100],
-                  center_milestones: [0, 60, 80, 100], center_weights: [0.0, 0.005, 0.01, 0.05], triplet_loss: False, multi_type: 2} 
-
+  algorithm_opt:
+    {
+      env_type: clf,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80, 100],
+      center_milestones: [0, 60, 80, 100],
+      center_weights: [0.0, 0.005, 0.01, 0.05],
+      triplet_loss: False,
+      multi_type: 2,
+    }
 
 # multi center loss with dual env pipeline (randaug version)
 multi_center_dual_randaug:
@@ -621,9 +736,17 @@ multi_center_dual_randaug:
   loss_type: CrossEntropy
   backbone_type: ResNext
   classifier_type: FC
-  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: True, update_milestones: [60, 80, 100, 120],
-                  center_milestones: [0, 60, 80, 100, 120], center_weights: [0.0, 0.005, 0.01, 0.05, 0.1], triplet_loss: True, multi_type: 2} 
-
+  algorithm_opt:
+    {
+      env_type: clf,
+      sample_scale: 4.0,
+      always_update: True,
+      update_milestones: [60, 80, 100, 120],
+      center_milestones: [0, 60, 80, 100, 120],
+      center_weights: [0.0, 0.005, 0.01, 0.05, 0.1],
+      triplet_loss: False,
+      multi_type: 2,
+    }
 
 multi_center_dual_tade:
   test_type: baseline
@@ -634,10 +757,19 @@ multi_center_dual_tade:
   loss_type: TADE # TADE / CrossEntropy
   backbone_type: RIDE
   classifier_type: RIDE
-  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80], 
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], tau: 2.0, triplet_loss: False, multi_type: 2} 
+  algorithm_opt:
+    {
+      env_type: clf,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      tau: 2.0,
+      triplet_loss: False,
+      multi_type: 2,
+    }
   # env_type : correctness / inter / intra / inter_intra / simple_aug
-
 
 multi_center_dual_ride:
   test_type: baseline
@@ -648,8 +780,40 @@ multi_center_dual_ride:
   loss_type: RIDE
   backbone_type: RIDE
   classifier_type: RIDE
-  scheduler: 'multistep'
-  scheduler_params: {gamma: 0.1, milestones: [60, 80]}
-  algorithm_opt: {env_type : clf, sample_scale : 4.0, always_update: False, update_milestones: [60, 80], 
-                  center_milestones: [0, 60, 80], center_weights: [0.0, 0.001, 0.005], diversity_factor: -0.2, triplet_loss: False, multi_type: 2} 
+  scheduler: "multistep"
+  scheduler_params: { gamma: 0.1, milestones: [60, 80] }
+  algorithm_opt:
+    {
+      env_type: clf,
+      sample_scale: 4.0,
+      always_update: False,
+      update_milestones: [60, 80],
+      center_milestones: [0, 60, 80],
+      center_weights: [0.0, 0.001, 0.005],
+      diversity_factor: -0.2,
+      triplet_loss: False,
+      multi_type: 2,
+    }
   # env_type : correctness / inter / intra / inter_intra / simple_aug
+
+multi_center_dual_denosing:
+  rand_aug: True
+  test_type: baseline
+  sampler: DistributionSampler # WeightedSampler / DistributionSampler
+  num_sampler: 2
+  batch_split: True
+  num_epochs: 300
+  loss_type: CrossEntropy
+  backbone_type: ResNext
+  classifier_type: FC
+  algorithm_opt:
+    {
+      env_type: clf,
+      sample_scale: 4.0,
+      always_update: True,
+      update_milestones: [60, 80, 100, 120],
+      center_milestones: [0, 60, 80, 100, 120],
+      center_weights: [0.0, 0.005, 0.01, 0.05, 0.1],
+      triplet_loss: True,
+      multi_type: 2,
+    }

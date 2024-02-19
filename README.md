@@ -15,7 +15,7 @@ conda activate glt
 conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 cudatoolkit=11.3 -c pytorch
 
 # 3. install other packages
-pip install joblib==1.2.0 randaugment==1.0.2 pyyaml==6.0 matplotlib==3.7.1 tqdm==4.65.0 scikit-learn==1.2.2 numpy==1.23
+pip install joblib==1.2.0 randaugment==1.0.2 pyyaml==6.0 matplotlib==3.7.1 tqdm==4.65.0 scikit-learn==1.2.2 numpy==1.23 pandas==2.2.0
 
 # 4. download this project
 git clone https://github.com/jinyery/glt

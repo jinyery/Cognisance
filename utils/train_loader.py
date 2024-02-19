@@ -44,6 +44,7 @@ def train_loader(config):
         or config["training_opt"]["type"] == "multi_center_dual_randaug"
         or config["training_opt"]["type"] == "multi_center_dual_blsoftmax"
         or config["training_opt"]["type"] == "multi_center_dual_logit_adj"
+        or config["training_opt"]["type"] == "multi_center_dual_logit_denosing"
     ):
         return train_multi_center_dual
     elif config["training_opt"]["type"] == "multi_center_dual_tade":

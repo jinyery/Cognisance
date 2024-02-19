@@ -325,6 +325,7 @@ class train_multi_center_dual:
                 self.logger,
                 acc=val_acc,
                 add_dict=env_score_memo,
+                cat_clf=self.cat_clf
             )
 
             # update scheduler
@@ -394,12 +395,6 @@ class train_multi_center_dual:
             else:
                 clf = CoarseLeadingForest(list(cat_items.values()), metric=self.metric)
             self.cat_clf[cat] = clf
-            clf_dir = os.path.join(
-                self.config["output_dir"], "clf", "epoch_" + str(self._epoch)
-            )
-            if not os.path.exists(clf_dir):
-                os.makedirs(clf_dir)
-            clf.save(path=os.path.join(clf_dir, str(cat) + ".clf"))
 
             paths, repetitions = clf.generate_path(detailed=True)
             repetitions = torch.Tensor(repetitions)
